@@ -3,6 +3,8 @@ title: 【转载】GitHub Pages + Hexo搭建博客
 date: 2018-07-26 14:01:14
 categories: Hexo搭建个人博客
 tags: Hexo
+toc: true
+list_number: false
 ---
 
 # 一、 前言

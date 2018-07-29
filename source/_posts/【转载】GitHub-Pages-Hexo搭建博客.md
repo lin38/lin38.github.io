@@ -20,12 +20,18 @@ list_number: false
 如果是小小白，可以先花时间去了解下：
 
 - [Git](http://git-scm.com/book/zh/v2)
+
 - [GitHub](https://github.com/)
+
 - [GitHub Pages](https://pages.github.com/)
+
 - [Hexo](https://hexo.io/zh-cn/)
+
 - [Markdown](http://www.appinn.com/markdown/#autoescape)
 
 - [Markdown](http://www.appinn.com/markdown/#autoescape)
+
+<!--more-->
 
 # 二、 必要配置
 

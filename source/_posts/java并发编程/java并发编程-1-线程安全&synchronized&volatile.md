@@ -19,6 +19,8 @@ list_number: false
 
 ​	可以在任意对象及方法上加锁，而加锁的这段代码称为“互斥区”或“临界区”。
 
+<!--more-->
+
 <center>示例1：</center>
 
 ```java

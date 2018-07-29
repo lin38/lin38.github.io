@@ -17,8 +17,11 @@ list_number: false
 
 ​	使用wait/notify方法实现线程间的通信，这两个方法都是Object类的方法，换句话说java为所有的对象都提供了这两个方法：
 
-1.  wait和notify必须配合synchronized关键字使用
-2.   wait方法释放锁，notify方法不释放锁
+1. wait和notify必须配合synchronized关键字使用
+
+2. wait方法释放锁，notify方法不释放锁
+
+<!--more-->
 
 <center>示例1：</center>
 

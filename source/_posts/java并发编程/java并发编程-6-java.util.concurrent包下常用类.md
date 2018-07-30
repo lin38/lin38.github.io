@@ -18,7 +18,7 @@ list_number: false
 <center>示例：</center>
 
 ```java
-package com.example.part_04_utils.demo001;
+package com.example.part_05_utils.demo001;
 
 import java.io.IOException;
 import java.util.Random;
@@ -89,7 +89,7 @@ lisi Go!!
 <center>示例：</center>
 
 ```java
-package com.example.part_04_utils.demo002;
+package com.example.part_05_utils.demo002;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -166,7 +166,7 @@ t1线程继续执行...
 ​	Future模式非常适合在处理很耗时的业务逻辑时使用，可以有效的减小系统的响应时间，提高系统的吞吐量。
 
 ```java
-package com.example.part_04_utils.demo003;
+package com.example.part_05_utils.demo003;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -244,7 +244,7 @@ Main成功获得future数据：future2-任务2处理完成
 ​	可以控制系统的流量：拿到信号量的线程可以进入，否则就等待。通过acquire()和release()获取和释放访问许可。
 
 ```java
-package com.example.part_04_utils.demo004;
+package com.example.part_05_utils.demo004;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -17,7 +17,7 @@ list_number: false
 
 
 
-# 2、**ReentrantLock（重入锁）**
+# 2、ReentrantLock（重入锁）
 
 ​	在需要进行同步的代码部分加上锁定，但不要忘记最后一定要释放锁定，不然会造成锁永远无法释放，其他线程永远进不来的结果。
 
@@ -105,7 +105,7 @@ public class UseReentrantLock {
 
 
 
-# 3、**锁与等待/通知**
+# 3、锁与等待/通知
 
 ​	我们在使用synchronized的时候，如果需要多线程间进行协作工作，则需要Object的wait()和notify()/notifyAll()方法进行配合工作。
 
@@ -191,7 +191,7 @@ public class UseCondition {
 
 
 
-# 4、**多Condition**
+# 4、多Condition
 
 ​	我们可以通过一个Lock对象产生多个Condition进行多线程间的交互，非常的灵活。可以使得部分需要唤醒的线程唤醒，其他线程则继续等待通知。
 
@@ -514,7 +514,7 @@ public class UseManyCondition {
 
 
 
-# 6、**ReentrantReadWriteLock（读写锁）**
+# 6、ReentrantReadWriteLock（读写锁）
 
 ​	其核心就是实现读写分离的锁。在高并发访问下，尤其是读多写少的情况下，性能要远高于重入锁。
 

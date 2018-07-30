@@ -11,7 +11,7 @@ toc: true
 list_number: false
 ---
 
-# 1、**CyclicBarrier**
+# 1、CyclicBarrier
 
 ​        假设有一个场景：每个线程代表一个跑步运动员，当运动员都准备好后，才能一起出发，只要有一个人没有准备好，其他人就要等待。
 
@@ -82,7 +82,7 @@ lisi Go!!
 
 
 
-# 2、**CountDownLatch**
+# 2、CountDownLatch
 
 ​        经常用于监听初始化操作，等初始化完成后，通知主线程继续工作。
 
@@ -161,7 +161,7 @@ t1线程继续执行...
 
 
 
-# 3、**Callable和Future**
+# 3、Callable和Future
 
 ​	Future模式非常适合在处理很耗时的业务逻辑时使用，可以有效的减小系统的响应时间，提高系统的吞吐量。
 
@@ -239,7 +239,7 @@ Main成功获得future数据：future2-任务2处理完成
 
 
 
-# 4、**Semaphore（信号量）**
+# 4、Semaphore（信号量）
 
 ​	可以控制系统的流量：拿到信号量的线程可以进入，否则就等待。通过acquire()和release()获取和释放访问许可。
 

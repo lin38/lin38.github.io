@@ -27,7 +27,7 @@ list_number: false
 
 
 
-# 2、**并发类容器**
+# 2、并发类容器
 
 ​	jdk5.0以后提供了多种并发类容器来替代同步类容器，从而改善性能。同步类容器的状态都是串行化的。他们虽然实现了线程安全，但是严重降低了并发性，在多线程环境时，严重降低了应用程序的吞吐量。
 
@@ -37,7 +37,7 @@ list_number: false
 
 
 
-# 3、**ConcurrentMap**
+# 3、ConcurrentMap
 
 ​	ConcurrentMap接口下有两个重要的实现：
 
@@ -87,7 +87,7 @@ key:k4,value:vvvv
 
 
 
-# 4、**Copy-On-Write容器**
+# 4、Copy-On-Write容器
 
 ​	Copy-On-Write简称COW，是一种用于程序设计中的优化策略。
 
@@ -105,7 +105,7 @@ key:k4,value:vvvv
 
 
 
-# 6、**ConcurrentLinkedQueue**
+# 6、ConcurrentLinkedQueue
 
 ​	ConcurrentLinkedQueue是一个适用于高并发场景下的队列，通过无锁的方式，实现了高并发状态下的高性能，通常ConcurrentLinkedQueue性能好于BlockingQueue。它是一个基于链接节点的无界线程安全队列。该队列的元素遵循先进先出的原则。头是最先加入的，尾是最近加入的，该队列不允许null元素。
 
@@ -160,7 +160,7 @@ b
 
 
 
-# 7、**BlockingQueue接口**
+# 7、BlockingQueue接口
 
 ## 7.1 ArrayBlockingQueue
 

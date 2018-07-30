@@ -158,7 +158,7 @@ Main:获取到最终结果：查询结果
 
 
 
-# 2、**Master-Worker模式**
+# 2、Master-Worker模式
 
 ​	Master-Worker模式是常用的并行模式。它的核心思想是系统由两类进程协作工作：Master进程和Worker进程。Master负责接收和分配任务，Worker负责处理子任务。当各个Worker子进程处理完成后，会将结果返回给Master，由Master做归纳和总结。其好处是能将一个大任务分解成若干小任务，并行执行，从而提高系统的吞吐量。
 
@@ -328,7 +328,7 @@ public class Main {
 
 
 
-# 3、**生产者-消费者**
+# 3、生产者-消费者
 
 
 

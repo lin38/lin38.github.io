@@ -336,7 +336,7 @@ public class DirtyRead {
 
   
 
-# 4、**synchronized其他概念**
+# 4、synchronized其他概念
 
 ## 4.1 synchronized锁重入
 
@@ -553,7 +553,7 @@ Exception in thread "t2" java.lang.RuntimeException
 
 
 
-# 5、**synchronized代码块**
+# 5、synchronized代码块
 
 ## 5.1 同步方法的弊端
 
@@ -1017,7 +1017,7 @@ public class DeadLock implements Runnable {
 
 
 
-# 6、**volatile关键字的概念**
+# 6、volatile关键字的概念
 
 ​	volatile概念：volatile关键字的主要作用是使变量在多个线程间可见。 
 
@@ -1080,7 +1080,7 @@ public class RunThread extends Thread {
 
 
 
-# 7、**volatile关键字的非原子性**
+# 7、volatile关键字的非原子性
 
 ​	volatile关键字虽然拥有多个线程之间的可见性，但是却不具备同步性（也就是原子性），可以算上是一个轻量级的synchronized，性能要比synchronized强很多，不会造成阻塞。 
 

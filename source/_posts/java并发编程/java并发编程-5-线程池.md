@@ -8,7 +8,7 @@ toc: true
 list_number: false
 ---
 
-# 1、**Executor框架**
+# 1、Executor框架
 
 ​        为了更好的控制多线程，JDK提供了一套线程框架Executor，帮助开发人员有效地进行线程控制。它们都在java.util.concurrent包中，是JDK并发包的核心。其中有一个比较重要的类：Executors，它扮演着线程工厂的角色，我们通过Executors可以创建特定功能的线程池。
 
@@ -23,7 +23,7 @@ list_number: false
 
 
 
-# 2、**自定义线程池**
+# 2、自定义线程池
 
 ```java
     public ThreadPoolExecutor(int corePoolSize,
@@ -37,7 +37,7 @@ list_number: false
 
 
 
-# 3、**自定义线程池使用详细**
+# 3、自定义线程池使用详细
 
 ​        这个构造方法对于队列是什么类型的比较关键（BlockingQueue）：
 
@@ -51,3 +51,8 @@ list_number: false
 3. DiscardOldestPolicy：丢弃最老的一个请求，尝试再次提交当前任务。
 4. DiscardPolicy：丢弃无法处理的任务，不给予任何处理。
 
+
+
+# 4、线程池工作流程
+
+![](Java线程池主要工作流程.jpg)

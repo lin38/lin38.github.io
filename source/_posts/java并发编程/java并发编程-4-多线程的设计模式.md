@@ -7,6 +7,7 @@ tags:
   - Future模式
   - Master-Worker模式
   - 生产者-消费者模式
+  - 单例模式
 toc: true
 list_number: false
 ---
@@ -559,5 +560,206 @@ public class Main {
 当前消费线程：pool-1-thread-5， 消费成功，消费数据为id: 22
 当前消费线程：pool-1-thread-6， 消费成功，消费数据为id: 20
 当前消费线程：pool-1-thread-4， 消费成功，消费数据为id: 23
+```
+
+
+
+# 4、单例&多线程
+
+​	单例模式，最常见的就是饥饿模式和懒汉模式，一个直接实例化对象，一个在调用方法时进行实例化对象。
+
+​	在多线程模式中，考虑到性能和线程安全问题，我们一般选用下面两种比较经典的单例模式，在性能提高的同时，又保证了线程的安全：
+
+- Double check instance
+- static inner class
+
+<center>示例—Double check instance：</center>
+
+```java
+package com.example.part_04_designPattern.demo004;
+
+/**
+ * 使用双重校验的方式实现单例模式
+ */
+public class DoubleCheckSingleton {
+
+	// 注意volatie！！！
+	private static volatile DoubleCheckSingleton ds;
+
+	private DoubleCheckSingleton() {
+
+	}
+
+	// 静态方法只有在调用的时候才会执行，不会在类加载时候执行，所以ds初始化不会在类加载时候初始化，这样的好处就是，万一应用从始至终就没使用ds，不会造成资源浪费
+	public static DoubleCheckSingleton getDs() {
+		if (ds == null) { // 注意此处：当最开始的时候，可能多个线程同时进入方法，所有线程判断此时的ds都为null，全部进入if代码块
+			try {
+				// 模拟初始化对象的准备时间...
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			synchronized (DoubleCheckSingleton.class) {
+				if (ds == null) { // 注意此处：多线程同时初始化ds的时候，一定要加上二次校验，防止初始化多次
+					
+					/**
+					 * 此处对ds变量使用volatile修饰做出解释：
+					 * 这里的 volatile 关键字主要是为了防止指令重排。
+					 * ds = new DoubleCheckSingleton();这段代码其实是分为三步：
+					 * (1)分配内存空间。
+					 * (2)初始化对象。
+					 * (3)将 singleton 对象指向分配的内存地址。
+					 * 加上 volatile 是为了让以上的三步操作顺序执行，
+					 * 反之有可能第三步在第二步之前被执行就有可能导致某个线程拿到的单例对象还没有初始化，以致于使用报错
+					 */
+					
+					ds = new DoubleCheckSingleton();
+				}
+			}
+		}
+		return ds;
+	}
+
+	public static void main(String[] args) {
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(DoubleCheckSingleton.getDs().hashCode());
+			}
+		}, "t1");
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(DoubleCheckSingleton.getDs().hashCode());
+			}
+		}, "t2");
+		Thread t3 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(DoubleCheckSingleton.getDs().hashCode());
+			}
+		}, "t3");
+		Thread t4 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(DoubleCheckSingleton.getDs().hashCode());
+			}
+		}, "t4");
+		Thread t5 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(DoubleCheckSingleton.getDs().hashCode());
+			}
+		}, "t5");
+		Thread t6 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(DoubleCheckSingleton.getDs().hashCode());
+			}
+		}, "t6");
+
+		t1.start();
+		t2.start();
+		t3.start();
+		t4.start();
+		t5.start();
+		t6.start();
+	}
+
+}
+```
+
+执行结果：
+
+```
+1546272580
+1546272580
+1546272580
+1546272580
+1546272580
+1546272580
+```
+
+<center>示例—static inner class：</center>
+
+```java
+package com.example.part_04_designPattern.demo004;
+
+/**
+ * 静态内部类的方式实现单例模式
+ */
+public class Singleton {
+
+	private Singleton() {
+
+	}
+
+	// 静态内部类只有在调用的时候才会初始化，不会在外部类加载时候初始化，所以ds初始化不会在外部类加载时候初始化，这样的好处就是，万一应用从始至终就没使用ds，不会造成资源浪费
+	private static class InnerSingleton {
+		private static Singleton single = new Singleton();
+	}
+
+	public static Singleton getInstance() {
+		return InnerSingleton.single;
+	}
+	
+	public static void main(String[] args) {
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(Singleton.getInstance().hashCode());
+			}
+		}, "t1");
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(Singleton.getInstance().hashCode());
+			}
+		}, "t2");
+		Thread t3 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(Singleton.getInstance().hashCode());
+			}
+		}, "t3");
+		Thread t4 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(Singleton.getInstance().hashCode());
+			}
+		}, "t4");
+		Thread t5 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(Singleton.getInstance().hashCode());
+			}
+		}, "t5");
+		Thread t6 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println(Singleton.getInstance().hashCode());
+			}
+		}, "t6");
+
+		t1.start();
+		t2.start();
+		t3.start();
+		t4.start();
+		t5.start();
+		t6.start();
+	}
+
+}
+```
+
+执行结果：
+
+```
+1983483740
+1983483740
+1983483740
+1983483740
+1983483740
+1983483740
 ```
 

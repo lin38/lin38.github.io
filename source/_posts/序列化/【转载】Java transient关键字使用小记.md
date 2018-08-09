@@ -3,7 +3,6 @@ title: 【转载】Java transient关键字使用小记
 date: 2018-07-30 20:13:15
 categories: 序列化
 tags: 
-  - 序列化
   - transient
   - Serializable
   - Externalizable

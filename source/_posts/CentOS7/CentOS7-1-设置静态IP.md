@@ -4,6 +4,7 @@ date: 2018-09-13 14:08:21
 categories: Linux
 tags: 
   - CentOS7
+  - Linux
 toc: true
 list_number: false
 ---

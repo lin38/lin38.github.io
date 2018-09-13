@@ -1,0 +1,576 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>java网络编程-3-NIO多Selector处理高并发 | John Lin的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="John Lin">
+    
+
+    
+    <meta name="description" content="1、单Selector问题​    对于并发不是很大的情况下，一个Selector负责轮询注册事件的变化，并对事件进行处理，是没有问题的。但是当并发比较大的时候，客户端连接比较多，且IO也比较多的情况，一个Selector肯定是不能满足对于系统性能的要求。 ​    对于高并发的情况，给去的解决方案是：分为boss（一个或多个）和worker（多个）两种线程来处理，每一个线程都拥有自己的Selec">
+<meta name="keywords" content="ServerSocketChannel,SocketChannel,Selector">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java网络编程-3-NIO多Selector处理高并发">
+<meta property="og:url" content="http://lin38.github.io/2018/08/01/java网络编程/java网络编程-3-NIO多Selector处理高并发/index.html">
+<meta property="og:site_name" content="John Lin的博客">
+<meta property="og:description" content="1、单Selector问题​    对于并发不是很大的情况下，一个Selector负责轮询注册事件的变化，并对事件进行处理，是没有问题的。但是当并发比较大的时候，客户端连接比较多，且IO也比较多的情况，一个Selector肯定是不能满足对于系统性能的要求。 ​    对于高并发的情况，给去的解决方案是：分为boss（一个或多个）和worker（多个）两种线程来处理，每一个线程都拥有自己的Selec">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://lin38.github.io/2018/08/01/java网络编程/java网络编程-3-NIO多Selector处理高并发/多Selector.png">
+<meta property="og:updated_time" content="2018-09-13T06:01:30.788Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java网络编程-3-NIO多Selector处理高并发">
+<meta name="twitter:description" content="1、单Selector问题​    对于并发不是很大的情况下，一个Selector负责轮询注册事件的变化，并对事件进行处理，是没有问题的。但是当并发比较大的时候，客户端连接比较多，且IO也比较多的情况，一个Selector肯定是不能满足对于系统性能的要求。 ​    对于高并发的情况，给去的解决方案是：分为boss（一个或多个）和worker（多个）两种线程来处理，每一个线程都拥有自己的Selec">
+<meta name="twitter:image" content="http://lin38.github.io/2018/08/01/java网络编程/java网络编程-3-NIO多Selector处理高并发/多Selector.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="John Lin的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="John Lin的博客" title="John Lin的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="John Lin的博客">John Lin的博客</a></h1>
+				<h2 class="blog-motto">杂技：复杂的技术，繁杂的技术，混杂的技术。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/tags">标签</a></li>
+					
+						<li><a href="/categories">分类</a></li>
+					
+					<li>
+ 					
+                    <!--
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:lin38.github.io">
+					</form>
+                    -->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/01/java网络编程/java网络编程-3-NIO多Selector处理高并发/" title="java网络编程-3-NIO多Selector处理高并发" itemprop="url">java网络编程-3-NIO多Selector处理高并发</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="John Lin" target="_blank" itemprop="author">John Lin</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-01T06:16:23.000Z" itemprop="datePublished"> 发表于 2018-08-01</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、单Selector问题"><span class="toc-text">1、单Selector问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、代码实现"><span class="toc-text">2、代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、测试结果"><span class="toc-text">3、测试结果</span></a></li></ol>
+		
+		</div>
+		
+		<h1 id="1、单Selector问题"><a href="#1、单Selector问题" class="headerlink" title="1、单Selector问题"></a>1、单Selector问题</h1><p>​    对于并发不是很大的情况下，一个Selector负责轮询注册事件的变化，并对事件进行处理，是没有问题的。但是当并发比较大的时候，客户端连接比较多，且IO也比较多的情况，一个Selector肯定是不能满足对于系统性能的要求。</p>
+<p>​    对于高并发的情况，给去的解决方案是：分为boss（一个或多个）和worker（多个）两种线程来处理，每一个线程都拥有自己的Selector。boss线程负责接收客户端请求，将accept到的SocketChannel转交给其中的一个worker线程去处理IO请求。</p>
+<p>​    结合上一篇文章的图解，这一篇实现的效果，类似于：</p>
+<p><img src="/2018/08/01/java网络编程/java网络编程-3-NIO多Selector处理高并发/多Selector.png" alt=""></p>
+<p>​    通俗解释：用餐高峰期，餐厅客人较多，一个服务员肯定是忙不过来的，这个时候就需要多个服务员来接待客人了。</p>
+<a id="more"></a>
+<h1 id="2、代码实现"><a href="#2、代码实现" class="headerlink" title="2、代码实现"></a>2、代码实现</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_02_nio.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executor;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 线程池管理对象，用于管理boss线程和worker线程</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Pool</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * boss线程数组</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger bossIndex = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line">	<span class="keyword">private</span> Boss[] bosses;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * worker线程数组</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger workerIndex = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line">	<span class="keyword">private</span> Worker[] workeres;</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Pool</span><span class="params">(Executor bossExecutor, Executor workerExecutor)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		initBoss(bossExecutor, <span class="number">1</span>);</span><br><span class="line">		initWorker(workerExecutor, Runtime.getRuntime().availableProcessors() * <span class="number">2</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 初始化boss线程</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> boss</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> count</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@throws</span> IOException </span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initBoss</span><span class="params">(Executor bossExecutor, <span class="keyword">int</span> count)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.bosses = <span class="keyword">new</span> Boss[count];</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bosses.length; i++) &#123;</span><br><span class="line">			bosses[i] = <span class="keyword">new</span> Boss(<span class="string">"boss thread "</span> + (i+<span class="number">1</span>), <span class="keyword">this</span>);</span><br><span class="line">			bossExecutor.execute(bosses[i]);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 初始化worker线程</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> worker</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> count</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@throws</span> IOException </span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initWorker</span><span class="params">(Executor workerExecutor, <span class="keyword">int</span> count)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.workeres = <span class="keyword">new</span> Worker[count];</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; workeres.length; i++) &#123;</span><br><span class="line">			workeres[i] = <span class="keyword">new</span> Worker(<span class="string">"worker thread "</span> + (i+<span class="number">1</span>));</span><br><span class="line">			workerExecutor.execute(workeres[i]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 获取一个worker（取模方式，均匀分配）</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Worker <span class="title">nextWorker</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		 <span class="keyword">return</span> workeres[Math.abs(workerIndex.getAndIncrement() % workeres.length)];</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 获取一个boss（取模方式，均匀分配）</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Boss <span class="title">nextBoss</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		 <span class="keyword">return</span> bosses[Math.abs(bossIndex.getAndIncrement() % bosses.length)];</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_02_nio.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.ClosedChannelException;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.SelectionKey;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.Selector;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.ServerSocketChannel;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.SocketChannel;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicBoolean;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Boss线程 ，用来接收ServerSocketChannel的注册，并监听OP_ACCEPT事件，</span></span><br><span class="line"><span class="comment"> * 并将accept到的SocketChannel请求转交给Worker处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Boss</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 线程名称</span></span><br><span class="line">	<span class="keyword">private</span> String threadName;</span><br><span class="line">	<span class="comment">// 管理boss和worker的池对象</span></span><br><span class="line">	<span class="keyword">private</span> Pool pool;</span><br><span class="line">	<span class="comment">// 选择器</span></span><br><span class="line">	<span class="keyword">private</span> Selector selector = Selector.open();</span><br><span class="line">	<span class="comment">// selector的状态标志位，判断selector当前是否处于阻塞状态</span></span><br><span class="line">	<span class="keyword">private</span> AtomicBoolean blocking = <span class="keyword">new</span> AtomicBoolean(<span class="keyword">true</span>);</span><br><span class="line">	<span class="comment">// 任务列表（无界队列）</span></span><br><span class="line">	<span class="keyword">private</span> ConcurrentLinkedQueue&lt;Runnable&gt; taskQueue = <span class="keyword">new</span> ConcurrentLinkedQueue&lt;&gt;();</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Boss</span><span class="params">(String threadName, Pool pool)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.threadName = threadName;</span><br><span class="line">		<span class="keyword">this</span>.pool = pool;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Thread.currentThread().setName(threadName);</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 每次循环，都将阻塞状态置为true</span></span><br><span class="line">				blocking.set(<span class="keyword">true</span>);</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 监听注册时间，只有监听到事件时或者调用selector.wakeup()方法时才会返回</span></span><br><span class="line">				selector.select();</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 处理任务队列</span></span><br><span class="line">				processQueue();</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 处理监听到的请求</span></span><br><span class="line">				processEvent();</span><br><span class="line">				</span><br><span class="line">			&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processQueue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">			Runnable task = taskQueue.poll();</span><br><span class="line">			<span class="keyword">if</span>(task == <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			System.out.println(Thread.currentThread().getName() + <span class="string">"：从任务队列中执行任务"</span>);</span><br><span class="line">			task.run();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processEvent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Set&lt;SelectionKey&gt; selectedKeys = selector.selectedKeys();</span><br><span class="line">		<span class="keyword">if</span>(selectedKeys == <span class="keyword">null</span> || selectedKeys.isEmpty()) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		Iterator&lt;SelectionKey&gt; iterator = selectedKeys.iterator();</span><br><span class="line">		<span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">			SelectionKey key = iterator.next();</span><br><span class="line">			<span class="comment">// 删除掉，以防重复处理</span></span><br><span class="line">			iterator.remove();</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">if</span>(key.isAcceptable()) &#123;</span><br><span class="line">				<span class="keyword">try</span> &#123;</span><br><span class="line">					System.out.println(Thread.currentThread().getName() + <span class="string">"：获取到客户端连接事件"</span>);</span><br><span class="line">					</span><br><span class="line">					ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();</span><br><span class="line">					</span><br><span class="line">					SocketChannel socketChannel = serverSocketChannel.accept();</span><br><span class="line">					<span class="comment">// 设置为非阻塞</span></span><br><span class="line">					socketChannel.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">					<span class="comment">// 将接受到的客户端连接转给worker去处理</span></span><br><span class="line">					System.out.println(Thread.currentThread().getName() + <span class="string">"：将客户端连接转交给worker去处理"</span>);</span><br><span class="line">					<span class="keyword">this</span>.pool.nextWorker().registSocketChannel(socketChannel);</span><br><span class="line">				&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 提供注册新管道的方法</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registServerSocketChannel</span><span class="params">(ServerSocketChannel channel)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(<span class="keyword">this</span>.selector != <span class="keyword">null</span>) &#123;</span><br><span class="line"><span class="comment">//			System.out.println(Thread.currentThread().getName() + "：接收到新管道的注册，已加入到任务队列");</span></span><br><span class="line">			<span class="comment">// 向任务队列里增加任务</span></span><br><span class="line">			taskQueue.offer(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">				<span class="meta">@Override</span></span><br><span class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						channel.register(selector, SelectionKey.OP_ACCEPT);</span><br><span class="line">					&#125; <span class="keyword">catch</span> (ClosedChannelException e) &#123;</span><br><span class="line">						e.printStackTrace();</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;);</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 唤醒selector，不要继续阻塞，此时需要处理队列里的任务</span></span><br><span class="line">			<span class="keyword">while</span>(blocking.compareAndSet(<span class="keyword">true</span>, <span class="keyword">false</span>)) &#123;</span><br><span class="line">				<span class="keyword">this</span>.selector.wakeup();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_02_nio.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.nio.ByteBuffer;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.ClosedChannelException;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.SelectionKey;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.Selector;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.SocketChannel;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Worker线程 ，用来接收Boss端accept到的SocketChannel的注册，并监听OP_READ事件，完成IO操作</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Worker</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 线程名称</span></span><br><span class="line">	<span class="keyword">private</span> String threadName;</span><br><span class="line">	<span class="comment">// 选择器</span></span><br><span class="line">	<span class="keyword">private</span> Selector selector = Selector.open();</span><br><span class="line">	<span class="comment">// 任务列表（无界队列）</span></span><br><span class="line">	<span class="keyword">private</span> ConcurrentLinkedQueue&lt;Runnable&gt; taskQueue = <span class="keyword">new</span> ConcurrentLinkedQueue&lt;&gt;();</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Worker</span><span class="params">(String threadName)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.threadName = threadName;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Thread.currentThread().setName(threadName);</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 监听注册时间0.5s，监听到则处理，超时未返回</span></span><br><span class="line">				selector.select(<span class="number">500</span>);</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 处理任务队列</span></span><br><span class="line">				processQueue();</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 处理监听到的请求</span></span><br><span class="line">				processEvent();</span><br><span class="line">				</span><br><span class="line">			&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processQueue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">			Runnable task = taskQueue.poll();</span><br><span class="line">			<span class="keyword">if</span>(task == <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			System.out.println(Thread.currentThread().getName() + <span class="string">"：从任务队列中执行任务"</span>);</span><br><span class="line">			task.run();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processEvent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Set&lt;SelectionKey&gt; selectedKeys = selector.selectedKeys();</span><br><span class="line">		<span class="keyword">if</span>(selectedKeys == <span class="keyword">null</span> || selectedKeys.isEmpty()) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		Iterator&lt;SelectionKey&gt; iterator = selectedKeys.iterator();</span><br><span class="line">		<span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">			SelectionKey key = iterator.next();</span><br><span class="line">			<span class="comment">// 删除掉，以防重复处理</span></span><br><span class="line">			iterator.remove();</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">if</span>(key.isReadable()) &#123;</span><br><span class="line">				System.out.println(Thread.currentThread().getName() + <span class="string">"：获取到客户端写入事件"</span>);</span><br><span class="line">				SocketChannel channel = (SocketChannel) key.channel();</span><br><span class="line">				ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line">				<span class="keyword">try</span> &#123;</span><br><span class="line">					<span class="keyword">int</span> read = channel.read(byteBuffer);</span><br><span class="line">					<span class="keyword">if</span>(read &gt; <span class="number">0</span>) &#123;</span><br><span class="line">						<span class="keyword">byte</span>[] bs = byteBuffer.array();</span><br><span class="line">						String msg = <span class="keyword">new</span> String(bs).trim();</span><br><span class="line">						System.out.println(Thread.currentThread().getName() + <span class="string">"：获取到客户端写入信息——"</span> + msg);</span><br><span class="line">						ByteBuffer responseBuffer = ByteBuffer.wrap((<span class="string">"response："</span> + msg).getBytes());</span><br><span class="line">						channel.write(responseBuffer);</span><br><span class="line">					&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">						System.out.println(Thread.currentThread().getName() + <span class="string">"：客户端已经关闭连接"</span>);</span><br><span class="line">						key.cancel(); <span class="comment">// 不再接受该注册事件</span></span><br><span class="line">					&#125;</span><br><span class="line">				&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">				&#125;</span><br><span class="line">				</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 提供注册新管道的方法</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registSocketChannel</span><span class="params">(SocketChannel channel)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(<span class="keyword">this</span>.selector != <span class="keyword">null</span>) &#123;</span><br><span class="line"><span class="comment">//			System.out.println(Thread.currentThread().getName() + "：接收到新管道的注册，已加入到任务队列");</span></span><br><span class="line">			taskQueue.offer(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">				<span class="meta">@Override</span></span><br><span class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						channel.register(selector, SelectionKey.OP_READ);</span><br><span class="line">					&#125; <span class="keyword">catch</span> (ClosedChannelException e) &#123;</span><br><span class="line">						e.printStackTrace();</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_02_nio.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.net.InetSocketAddress;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.ServerSocketChannel;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executor;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Server</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 启动服务端测试</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		Executor bossExecutor = Executors.newCachedThreadPool();</span><br><span class="line">		Executor workerExecutor = Executors.newCachedThreadPool();</span><br><span class="line"></span><br><span class="line">		Pool pool = <span class="keyword">new</span> Pool(bossExecutor, workerExecutor);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获得一个ServerSocket通道</span></span><br><span class="line">		ServerSocketChannel serverChannel = ServerSocketChannel.open();</span><br><span class="line">		<span class="comment">// 设置通道为非阻塞</span></span><br><span class="line">		serverChannel.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">		<span class="comment">// 将该通道对应的ServerSocket绑定到port端口</span></span><br><span class="line">		serverChannel.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="number">8899</span>));</span><br><span class="line"></span><br><span class="line">		pool.nextBoss().registServerSocketChannel(serverChannel);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获得另一个ServerSocket通道</span></span><br><span class="line">		ServerSocketChannel serverChannel2 = ServerSocketChannel.open();</span><br><span class="line">		<span class="comment">// 设置通道为非阻塞</span></span><br><span class="line">		serverChannel2.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">		<span class="comment">// 将该通道对应的ServerSocket绑定到port端口</span></span><br><span class="line">		serverChannel2.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="number">8889</span>));</span><br><span class="line"></span><br><span class="line">		pool.nextBoss().registServerSocketChannel(serverChannel2);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_02_nio.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.net.InetSocketAddress;</span><br><span class="line"><span class="keyword">import</span> java.nio.ByteBuffer;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.SocketChannel;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CountDownLatch;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 客户端模拟高并发</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">int</span> count = <span class="number">16</span>;</span><br><span class="line"></span><br><span class="line">		CountDownLatch latch = <span class="keyword">new</span> CountDownLatch(count);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= count; i++) &#123;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">final</span> <span class="keyword">int</span> index = i;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">				<span class="meta">@Override</span></span><br><span class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						<span class="comment">// 16个线程阻塞到这里，一起执行，实现并发效果</span></span><br><span class="line">						latch.countDown();</span><br><span class="line">						latch.await();</span><br><span class="line"></span><br><span class="line">						<span class="comment">// 创建连接的地址</span></span><br><span class="line">						InetSocketAddress address = <span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, index / <span class="number">2</span> == <span class="number">0</span> ? <span class="number">8899</span> : <span class="number">8889</span>);</span><br><span class="line"></span><br><span class="line">						<span class="comment">// 声明连接通道</span></span><br><span class="line">						SocketChannel sc = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">						<span class="comment">// 建立缓冲区</span></span><br><span class="line">						ByteBuffer buffer = ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line">						<span class="keyword">try</span> &#123;</span><br><span class="line">							<span class="comment">// 打开通道</span></span><br><span class="line">							sc = SocketChannel.open();</span><br><span class="line">							<span class="comment">// 进行连接</span></span><br><span class="line">							sc.connect(address);</span><br><span class="line"></span><br><span class="line">							<span class="comment">// 写出数据</span></span><br><span class="line">							sc.write(ByteBuffer.wrap((<span class="string">"请求"</span> + index).getBytes()));</span><br><span class="line">							<span class="comment">// 清空缓冲区数据</span></span><br><span class="line">							buffer.clear();</span><br><span class="line"></span><br><span class="line">							<span class="keyword">int</span> read = sc.read(buffer);</span><br><span class="line">							<span class="keyword">if</span> (read &gt; <span class="number">0</span>) &#123;</span><br><span class="line">								<span class="keyword">byte</span>[] data = buffer.array();</span><br><span class="line">								String msg = <span class="keyword">new</span> String(data).trim();</span><br><span class="line">								System.out.println(<span class="string">"客户端端收到信息："</span> + msg);</span><br><span class="line">								buffer.clear();</span><br><span class="line">							&#125;</span><br><span class="line">						&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">							e.printStackTrace();</span><br><span class="line">						&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">							<span class="keyword">if</span> (sc != <span class="keyword">null</span>) &#123;</span><br><span class="line">								<span class="keyword">try</span> &#123;</span><br><span class="line">									sc.close();</span><br><span class="line">								&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">									e.printStackTrace();</span><br><span class="line">								&#125;</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;</span><br><span class="line">					&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">						e.printStackTrace();</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;).start();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="3、测试结果"><a href="#3、测试结果" class="headerlink" title="3、测试结果"></a>3、测试结果</h1><ol>
+<li><p>server端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line">boss thread 1：从任务队列中执行任务</span><br><span class="line">boss thread 1：从任务队列中执行任务</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">boss thread 1：获取到客户端连接事件</span><br><span class="line">boss thread 1：将客户端连接转交给worker去处理</span><br><span class="line">worker thread 1：从任务队列中执行任务</span><br><span class="line">worker thread 2：从任务队列中执行任务</span><br><span class="line">worker thread 4：从任务队列中执行任务</span><br><span class="line">worker thread 3：从任务队列中执行任务</span><br><span class="line">worker thread 4：从任务队列中执行任务</span><br><span class="line">worker thread 5：从任务队列中执行任务</span><br><span class="line">worker thread 6：从任务队列中执行任务</span><br><span class="line">worker thread 1：从任务队列中执行任务</span><br><span class="line">worker thread 2：从任务队列中执行任务</span><br><span class="line">worker thread 4：获取到客户端写入事件</span><br><span class="line">worker thread 5：从任务队列中执行任务</span><br><span class="line">worker thread 6：从任务队列中执行任务</span><br><span class="line">worker thread 3：从任务队列中执行任务</span><br><span class="line">worker thread 8：从任务队列中执行任务</span><br><span class="line">worker thread 7：从任务队列中执行任务</span><br><span class="line">worker thread 6：获取到客户端写入事件</span><br><span class="line">worker thread 5：获取到客户端写入事件</span><br><span class="line">worker thread 6：获取到客户端写入信息——请求9</span><br><span class="line">worker thread 3：获取到客户端写入事件</span><br><span class="line">worker thread 3：获取到客户端写入信息——请求6</span><br><span class="line">worker thread 6：获取到客户端写入事件</span><br><span class="line">worker thread 1：获取到客户端写入事件</span><br><span class="line">worker thread 4：获取到客户端写入信息——请求3</span><br><span class="line">worker thread 1：获取到客户端写入信息——请求12</span><br><span class="line">worker thread 7：从任务队列中执行任务</span><br><span class="line">worker thread 3：获取到客户端写入事件</span><br><span class="line">worker thread 1：获取到客户端写入事件</span><br><span class="line">worker thread 3：获取到客户端写入信息——请求2</span><br><span class="line">worker thread 1：获取到客户端写入信息——请求10</span><br><span class="line">worker thread 1：获取到客户端写入事件</span><br><span class="line">worker thread 1：客户端已经关闭连接</span><br><span class="line">worker thread 2：获取到客户端写入事件</span><br><span class="line">worker thread 2：获取到客户端写入信息——请求14</span><br><span class="line">worker thread 2：获取到客户端写入事件</span><br><span class="line">worker thread 2：获取到客户端写入信息——请求15</span><br><span class="line">worker thread 2：获取到客户端写入事件</span><br><span class="line">worker thread 8：从任务队列中执行任务</span><br><span class="line">worker thread 5：获取到客户端写入信息——请求5</span><br><span class="line">worker thread 8：获取到客户端写入事件</span><br><span class="line">worker thread 5：获取到客户端写入事件</span><br><span class="line">worker thread 5：获取到客户端写入信息——请求8</span><br><span class="line">worker thread 5：获取到客户端写入事件</span><br><span class="line">worker thread 5：客户端已经关闭连接</span><br><span class="line">worker thread 2：客户端已经关闭连接</span><br><span class="line">worker thread 1：获取到客户端写入事件</span><br><span class="line">worker thread 1：客户端已经关闭连接</span><br><span class="line">worker thread 5：获取到客户端写入事件</span><br><span class="line">worker thread 5：客户端已经关闭连接</span><br><span class="line">worker thread 8：获取到客户端写入信息——请求4</span><br><span class="line">worker thread 2：获取到客户端写入事件</span><br><span class="line">worker thread 2：客户端已经关闭连接</span><br><span class="line">worker thread 8：获取到客户端写入事件</span><br><span class="line">worker thread 8：获取到客户端写入信息——请求16</span><br><span class="line">worker thread 7：获取到客户端写入事件</span><br><span class="line">worker thread 3：获取到客户端写入事件</span><br><span class="line">worker thread 3：客户端已经关闭连接</span><br><span class="line">worker thread 3：获取到客户端写入事件</span><br><span class="line">worker thread 3：客户端已经关闭连接</span><br><span class="line">worker thread 6：获取到客户端写入信息——请求1</span><br><span class="line">worker thread 4：获取到客户端写入事件</span><br><span class="line">worker thread 7：获取到客户端写入信息——请求13</span><br><span class="line">worker thread 6：获取到客户端写入事件</span><br><span class="line">worker thread 7：获取到客户端写入事件</span><br><span class="line">worker thread 7：获取到客户端写入信息——请求11</span><br><span class="line">worker thread 7：获取到客户端写入事件</span><br><span class="line">worker thread 7：客户端已经关闭连接</span><br><span class="line">worker thread 8：获取到客户端写入事件</span><br><span class="line">worker thread 7：获取到客户端写入事件</span><br><span class="line">worker thread 7：客户端已经关闭连接</span><br><span class="line">worker thread 6：客户端已经关闭连接</span><br><span class="line">worker thread 4：获取到客户端写入信息——请求7</span><br><span class="line">worker thread 6：获取到客户端写入事件</span><br><span class="line">worker thread 6：客户端已经关闭连接</span><br><span class="line">worker thread 8：客户端已经关闭连接</span><br><span class="line">worker thread 4：获取到客户端写入事件</span><br><span class="line">worker thread 4：客户端已经关闭连接</span><br><span class="line">worker thread 4：获取到客户端写入事件</span><br><span class="line">worker thread 4：客户端已经关闭连接</span><br><span class="line">worker thread 8：获取到客户端写入事件</span><br><span class="line">worker thread 8：客户端已经关闭连接</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>client端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">客户端端收到信息：response：请求6</span><br><span class="line">客户端端收到信息：response：请求9</span><br><span class="line">客户端端收到信息：response：请求3</span><br><span class="line">客户端端收到信息：response：请求10</span><br><span class="line">客户端端收到信息：response：请求12</span><br><span class="line">客户端端收到信息：response：请求2</span><br><span class="line">客户端端收到信息：response：请求14</span><br><span class="line">客户端端收到信息：response：请求15</span><br><span class="line">客户端端收到信息：response：请求5</span><br><span class="line">客户端端收到信息：response：请求8</span><br><span class="line">客户端端收到信息：response：请求4</span><br><span class="line">客户端端收到信息：response：请求16</span><br><span class="line">客户端端收到信息：response：请求1</span><br><span class="line">客户端端收到信息：response：请求11</span><br><span class="line">客户端端收到信息：response：请求13</span><br><span class="line">客户端端收到信息：response：请求7</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>结果分析：</p>
+<ul>
+<li>一个Selector可以注册多个channel，如代码中的boss就注册了两个ServerSocketChannel，分别为8899和8889</li>
+<li>一个系统中可以存在多个Selector，代码中每一个boss/worker线程，都拥有一个Selector</li>
+<li>通过结果输出可以看出，客户端的IO请求被均匀的分配到各个worker线程去处理，boss只是负责接收连接</li>
+</ul>
+</li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/java网络编程/">java网络编程</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ServerSocketChannel/">ServerSocketChannel</a><a href="/tags/SocketChannel/">SocketChannel</a><a href="/tags/Selector/">Selector</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://lin38.github.io/2018/08/01/java网络编程/java网络编程-3-NIO多Selector处理高并发/" data-title="java网络编程-3-NIO多Selector处理高并发 | John Lin的博客" data-tsina="2756295365" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/08/02/java网络编程/java网络编程-4-NIO-Buffer/" title="java网络编程-4-NIO-Buffer">
+  <strong>上一篇：</strong><br/>
+  <span>
+  java网络编程-4-NIO-Buffer</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/31/java网络编程/java网络编程-2-NIO/"  title="java网络编程-2-NIO">
+ <strong>下一篇：</strong><br/> 
+ <span>java网络编程-2-NIO
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、单Selector问题"><span class="toc-text">1、单Selector问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、代码实现"><span class="toc-text">2、代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、测试结果"><span class="toc-text">3、测试结果</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Hexo搭建个人博客/" title="Hexo搭建个人博客">Hexo搭建个人博客<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java并发编程/" title="java并发编程">java并发编程<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java网络编程/" title="java网络编程">java网络编程<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/序列化/" title="序列化">序列化<sup>4</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/ServerSocketChannel/" title="ServerSocketChannel">ServerSocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SocketChannel/" title="SocketChannel">SocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Selector/" title="Selector">Selector<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/transient/" title="transient">transient<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Serializable/" title="Serializable">Serializable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Externalizable/" title="Externalizable">Externalizable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Callable/" title="Callable">Callable<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentHashMap/" title="ConcurrentHashMap">ConcurrentHashMap<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ArrayBlockingQueue/" title="ArrayBlockingQueue">ArrayBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentLinkedQueue/" title="ConcurrentLinkedQueue">ConcurrentLinkedQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingDeque/" title="LinkedBlockingDeque">LinkedBlockingDeque<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingQueue/" title="LinkedBlockingQueue">LinkedBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SynchronousQueue/" title="SynchronousQueue">SynchronousQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/PriorityBlockingQueue/" title="PriorityBlockingQueue">PriorityBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DelayQueue/" title="DelayQueue">DelayQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/wait/" title="wait">wait<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/notify/" title="notify">notify<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ThreadLocal/" title="ThreadLocal">ThreadLocal<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程池/" title="线程池">线程池<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 程序员的进步史 <br/>
+			To be a better man!</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2756295365" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/lin38" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/133002175" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/johnlin-56-26" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:1135191951@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="John Lin">John Lin</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

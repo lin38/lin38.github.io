@@ -1,0 +1,573 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>java并发编程-5-线程池 | John Lin的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="John Lin">
+    
+
+    
+    <meta name="description" content="1、Executor框架​        为了更好的控制多线程，JDK提供了一套线程框架Executor，帮助开发人员有效地进行线程控制。它们都在java.util.concurrent包中，是JDK并发包的核心。其中有一个比较重要的类：Executors，它扮演着线程工厂的角色，我们通过Executors可以创建特定功能的线程池。 ​        Executors创建线程池的方法：  new">
+<meta name="keywords" content="线程池">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java并发编程-5-线程池">
+<meta property="og:url" content="http://lin38.github.io/2018/07/30/java并发编程/java并发编程-5-线程池/index.html">
+<meta property="og:site_name" content="John Lin的博客">
+<meta property="og:description" content="1、Executor框架​        为了更好的控制多线程，JDK提供了一套线程框架Executor，帮助开发人员有效地进行线程控制。它们都在java.util.concurrent包中，是JDK并发包的核心。其中有一个比较重要的类：Executors，它扮演着线程工厂的角色，我们通过Executors可以创建特定功能的线程池。 ​        Executors创建线程池的方法：  new">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://lin38.github.io/2018/07/30/java并发编程/java并发编程-5-线程池/Java线程池主要工作流程.jpg">
+<meta property="og:updated_time" content="2018-09-13T06:01:30.784Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java并发编程-5-线程池">
+<meta name="twitter:description" content="1、Executor框架​        为了更好的控制多线程，JDK提供了一套线程框架Executor，帮助开发人员有效地进行线程控制。它们都在java.util.concurrent包中，是JDK并发包的核心。其中有一个比较重要的类：Executors，它扮演着线程工厂的角色，我们通过Executors可以创建特定功能的线程池。 ​        Executors创建线程池的方法：  new">
+<meta name="twitter:image" content="http://lin38.github.io/2018/07/30/java并发编程/java并发编程-5-线程池/Java线程池主要工作流程.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="John Lin的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="John Lin的博客" title="John Lin的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="John Lin的博客">John Lin的博客</a></h1>
+				<h2 class="blog-motto">杂技：复杂的技术，繁杂的技术，混杂的技术。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/tags">标签</a></li>
+					
+						<li><a href="/categories">分类</a></li>
+					
+					<li>
+ 					
+                    <!--
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:lin38.github.io">
+					</form>
+                    -->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/30/java并发编程/java并发编程-5-线程池/" title="java并发编程-5-线程池" itemprop="url">java并发编程-5-线程池</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="John Lin" target="_blank" itemprop="author">John Lin</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-30T03:00:40.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、Executor框架"><span class="toc-text">1、Executor框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、自定义线程池"><span class="toc-text">2、自定义线程池</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、自定义线程池使用详细"><span class="toc-text">3、自定义线程池使用详细</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4、线程池工作流程"><span class="toc-text">4、线程池工作流程</span></a></li></ol>
+		
+		</div>
+		
+		<h1 id="1、Executor框架"><a href="#1、Executor框架" class="headerlink" title="1、Executor框架"></a>1、Executor框架</h1><p>​        为了更好的控制多线程，JDK提供了一套线程框架Executor，帮助开发人员有效地进行线程控制。它们都在java.util.concurrent包中，是JDK并发包的核心。其中有一个比较重要的类：Executors，它扮演着线程工厂的角色，我们通过Executors可以创建特定功能的线程池。</p>
+<p>​        Executors创建线程池的方法：</p>
+<ol>
+<li>newFixedThreadPool()方法：该方法返回一个固定数量的线程池。该方法的线程数始终不变，当有一个任务提交时，若线程池中有线程正在空闲，则立即执行，若没有，则会被暂缓在一个任务队列中等待有空闲的线程去执行。</li>
+<li>newSingleThreadPool()方法：创建一个线程的线程池，若空闲则执行，若没有则暂缓在任务队列中。</li>
+<li>newCachedThreadPool()方法：返回一个可根据实际情况调整线程个数的线程池，不限制最大线程数量，若有空闲的线程则执行任务，若无任务则不创建线程。并且每一个空闲线程会在60秒后自动回收。</li>
+<li>newScheduledThread()方法： 创建一个定长线程池，支持定时及周期性任务执行。</li>
+</ol>
+<a id="more"></a>
+<h1 id="2、自定义线程池"><a href="#2、自定义线程池" class="headerlink" title="2、自定义线程池"></a>2、自定义线程池</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue,</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler)</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="3、自定义线程池使用详细"><a href="#3、自定义线程池使用详细" class="headerlink" title="3、自定义线程池使用详细"></a>3、自定义线程池使用详细</h1><p>​        这个构造方法对于队列是什么类型的比较关键（BlockingQueue）：</p>
+<ol>
+<li>在使用有界队列时，若有新的任务需要执行，如果线程池实际线程数小于corePoolSize，则优先创建线程，若大于corePoolSize，则会将任务加入队列，若队列已满，则在总线程数不大于maximumPoolSize的前提下，创建新的线程，若线程数大于maximumPoolSize，则执行拒绝策略，或其他自定义方式。</li>
+<li>无界的任务队列时，LinkedBlockingQueue。与有界队列相比，除非系统资源耗尽，否则无界的任务队列不存在任务入队失败的情况。当有新任务到来，系统的线程数小于corePoolSize时，则新建线程执行任务。当达到corePoolSize后，就不会继续增加。若后续仍有新的任务加入，而没有空闲的线程资源，则任务直接进入队列等待。若任务创建和处理的速度差异很大，无界队列会保持快速增长，直到耗尽系统内存。</li>
+</ol>
+<p>​        JDK默认实现的拒绝策略（RejectedExecutionHandler）： </p>
+<ol>
+<li>AbortPolicy：直接抛出异常，组织系统正常工作。</li>
+<li>CallerRunsPolicy：只要线程池未关闭，直接在调用者线程中运行当前被丢弃的任务；若线程池已关闭，则直接抛弃任务。使用该策略时线程池饱和后将由调用线程池的主线程自己来执行任务，因此在执行任务的这段时间里主线程无法再提交新任务，从而使线程池中工作线程有时间将正在处理的任务处理完成。</li>
+<li>DiscardOldestPolicy：丢弃最老的一个请求，尝试再次提交当前任务。</li>
+<li>DiscardPolicy：丢弃无法处理的任务，不给予任何处理。</li>
+</ol>
+<h1 id="4、线程池工作流程"><a href="#4、线程池工作流程" class="headerlink" title="4、线程池工作流程"></a>4、线程池工作流程</h1><p><img src="/2018/07/30/java并发编程/java并发编程-5-线程池/Java线程池主要工作流程.jpg" alt=""></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/java并发编程/">java并发编程</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/线程池/">线程池</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://lin38.github.io/2018/07/30/java并发编程/java并发编程-5-线程池/" data-title="java并发编程-5-线程池 | John Lin的博客" data-tsina="2756295365" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/30/java并发编程/java并发编程-6-java.util.concurrent包下常用类/" title="java并发编程-6-java.util.concurrent包下常用类">
+  <strong>上一篇：</strong><br/>
+  <span>
+  java并发编程-6-java.util.concurrent包下常用类</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/29/java并发编程/java并发编程-4-多线程的设计模式/"  title="java并发编程-4-多线程的设计模式">
+ <strong>下一篇：</strong><br/> 
+ <span>java并发编程-4-多线程的设计模式
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、Executor框架"><span class="toc-text">1、Executor框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、自定义线程池"><span class="toc-text">2、自定义线程池</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、自定义线程池使用详细"><span class="toc-text">3、自定义线程池使用详细</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4、线程池工作流程"><span class="toc-text">4、线程池工作流程</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Hexo搭建个人博客/" title="Hexo搭建个人博客">Hexo搭建个人博客<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java并发编程/" title="java并发编程">java并发编程<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java网络编程/" title="java网络编程">java网络编程<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/序列化/" title="序列化">序列化<sup>4</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/ServerSocketChannel/" title="ServerSocketChannel">ServerSocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SocketChannel/" title="SocketChannel">SocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Selector/" title="Selector">Selector<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/transient/" title="transient">transient<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Serializable/" title="Serializable">Serializable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Externalizable/" title="Externalizable">Externalizable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Callable/" title="Callable">Callable<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentHashMap/" title="ConcurrentHashMap">ConcurrentHashMap<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ArrayBlockingQueue/" title="ArrayBlockingQueue">ArrayBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentLinkedQueue/" title="ConcurrentLinkedQueue">ConcurrentLinkedQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingDeque/" title="LinkedBlockingDeque">LinkedBlockingDeque<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingQueue/" title="LinkedBlockingQueue">LinkedBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SynchronousQueue/" title="SynchronousQueue">SynchronousQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/PriorityBlockingQueue/" title="PriorityBlockingQueue">PriorityBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DelayQueue/" title="DelayQueue">DelayQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/wait/" title="wait">wait<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/notify/" title="notify">notify<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ThreadLocal/" title="ThreadLocal">ThreadLocal<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程池/" title="线程池">线程池<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 程序员的进步史 <br/>
+			To be a better man!</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2756295365" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/lin38" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/133002175" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/johnlin-56-26" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:1135191951@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="John Lin">John Lin</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

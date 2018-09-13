@@ -1,0 +1,677 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【转载】GitHub Pages + Hexo搭建博客 | John Lin的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="John Lin">
+    
+
+    
+    <meta name="description" content="一、 前言这是一篇使用GitHub Pages和Hexo搭建免费独立博客的总结。 作为一个前端小白，虽说是个码农，但是一开始照着网上的各种教程去搭建的时候，还是云里雾里的。记得几个月前刚接触GitHub（哈哈，对大四来说确实有点晚），对版本控制一点概念都没有，更别说使用GitHub Page能做出一个好看又好用的博客了。所以第一次的尝试失败了。 后来的两三个月里，开始逐渐地把日常的学习都迁移到Gi">
+<meta name="keywords" content="Hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【转载】GitHub Pages + Hexo搭建博客">
+<meta property="og:url" content="http://lin38.github.io/2018/07/26/【转载】GitHub-Pages-Hexo搭建博客/index.html">
+<meta property="og:site_name" content="John Lin的博客">
+<meta property="og:description" content="一、 前言这是一篇使用GitHub Pages和Hexo搭建免费独立博客的总结。 作为一个前端小白，虽说是个码农，但是一开始照着网上的各种教程去搭建的时候，还是云里雾里的。记得几个月前刚接触GitHub（哈哈，对大四来说确实有点晚），对版本控制一点概念都没有，更别说使用GitHub Page能做出一个好看又好用的博客了。所以第一次的尝试失败了。 后来的两三个月里，开始逐渐地把日常的学习都迁移到Gi">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-13T06:01:30.792Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【转载】GitHub Pages + Hexo搭建博客">
+<meta name="twitter:description" content="一、 前言这是一篇使用GitHub Pages和Hexo搭建免费独立博客的总结。 作为一个前端小白，虽说是个码农，但是一开始照着网上的各种教程去搭建的时候，还是云里雾里的。记得几个月前刚接触GitHub（哈哈，对大四来说确实有点晚），对版本控制一点概念都没有，更别说使用GitHub Page能做出一个好看又好用的博客了。所以第一次的尝试失败了。 后来的两三个月里，开始逐渐地把日常的学习都迁移到Gi">
+
+    
+    <link rel="alternative" href="/atom.xml" title="John Lin的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="John Lin的博客" title="John Lin的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="John Lin的博客">John Lin的博客</a></h1>
+				<h2 class="blog-motto">杂技：复杂的技术，繁杂的技术，混杂的技术。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/tags">标签</a></li>
+					
+						<li><a href="/categories">分类</a></li>
+					
+					<li>
+ 					
+                    <!--
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:lin38.github.io">
+					</form>
+                    -->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/26/【转载】GitHub-Pages-Hexo搭建博客/" title="【转载】GitHub Pages + Hexo搭建博客" itemprop="url">【转载】GitHub Pages + Hexo搭建博客</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="John Lin" target="_blank" itemprop="author">John Lin</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-26T06:01:14.000Z" itemprop="datePublished"> 发表于 2018-07-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、-前言"><span class="toc-text">一、 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、-必要配置"><span class="toc-text">二、 必要配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-GitHub-Pages-仓库"><span class="toc-text">2.1 GitHub Pages 仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-1-创建对应仓库"><span class="toc-text">2.1.1 创建对应仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-2-相关资料"><span class="toc-text">2.1.2 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Git"><span class="toc-text">2.2 Git</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1-安装-Git"><span class="toc-text">2.2.1 安装 Git</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2-配置-Git"><span class="toc-text">2.2.2 配置 Git</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3-相关资料"><span class="toc-text">2.2.3 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Git-与-GitHub"><span class="toc-text">2.3 Git 与 GitHub</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-git与github的区别"><span class="toc-text">2.3.1 git与github的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-与github建立联系"><span class="toc-text">2.3.2 与github建立联系</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-1-检查电脑是否已经有SSH-KEYS。"><span class="toc-text">2.3.2.1 检查电脑是否已经有SSH KEYS。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-2-如果没有SSH-KEY，则生成新的SSH-KEY。"><span class="toc-text">2.3.2.2 如果没有SSH KEY，则生成新的SSH KEY。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-3-向SSH-AGENT添加KEY。"><span class="toc-text">2.3.2.3 向SSH-AGENT添加KEY。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-4-在GITHUB添加SSH-KEY。"><span class="toc-text">2.3.2.4 在GITHUB添加SSH KEY。</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-相关资料"><span class="toc-text">2.3.3 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Hexo"><span class="toc-text">2.4 Hexo</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1-安装Hexo"><span class="toc-text">2.4.1 安装Hexo</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2-使用Hexo建站"><span class="toc-text">2.4.2 使用Hexo建站</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-3-相关资料"><span class="toc-text">2.4.3 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、一般的搭建方法"><span class="toc-text">三、一般的搭建方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-使用默认theme"><span class="toc-text">3.1 使用默认theme</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-其他theme"><span class="toc-text">3.2 其他theme</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、-优化部署与管理"><span class="toc-text">四、 优化部署与管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-概述"><span class="toc-text">4.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-我的博客搭建流程"><span class="toc-text">4.2 我的博客搭建流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-我的博客管理流程"><span class="toc-text">4.3 我的博客管理流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-1-日常修改"><span class="toc-text">4.3.1 日常修改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-2-本地资料丢失"><span class="toc-text">4.3.2 本地资料丢失</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、结尾"><span class="toc-text">五、结尾</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<h1 id="一、-前言"><a href="#一、-前言" class="headerlink" title="一、 前言"></a>一、 前言</h1><p>这是一篇使用GitHub Pages和Hexo搭建免费独立博客的总结。</p>
+<p>作为一个前端小白，虽说是个码农，但是一开始照着网上的各种教程去搭建的时候，还是云里雾里的。记得几个月前刚接触GitHub（哈哈，对大四来说确实有点晚），对版本控制一点概念都没有，更别说使用GitHub Page能做出一个好看又好用的博客了。所以第一次的尝试失败了。</p>
+<p>后来的两三个月里，开始逐渐地把日常的学习都迁移到GitHub上进行，慢慢熟悉了Git的版本控制。之后，因为嫌弃csdn和博客园的样子（颜值控），最终又回归到搭建独立博客的光明大道上。</p>
+<p>我所总结的是单纯地利用GitHub Pages搭建自己独立博客的过程，并没有额外使用独立域名之类的（谁让我现在还没工资 o(^▽^)o ）。</p>
+<p>如果是小小白，可以先花时间去了解下：</p>
+<ul>
+<li><p><a href="http://git-scm.com/book/zh/v2" target="_blank" rel="noopener">Git</a></p>
+</li>
+<li><p><a href="https://github.com/" target="_blank" rel="noopener">GitHub</a></p>
+</li>
+<li><p><a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></p>
+</li>
+<li><p><a href="https://hexo.io/zh-cn/" target="_blank" rel="noopener">Hexo</a></p>
+</li>
+<li><p><a href="http://www.appinn.com/markdown/#autoescape" target="_blank" rel="noopener">Markdown</a></p>
+</li>
+<li><p><a href="http://www.appinn.com/markdown/#autoescape" target="_blank" rel="noopener">Markdown</a></p>
+</li>
+</ul>
+<a id="more"></a>
+<h1 id="二、-必要配置"><a href="#二、-必要配置" class="headerlink" title="二、 必要配置"></a>二、 必要配置</h1><h2 id="2-1-GitHub-Pages-仓库"><a href="#2-1-GitHub-Pages-仓库" class="headerlink" title="2.1 GitHub Pages 仓库"></a>2.1 GitHub Pages 仓库</h2><h3 id="2-1-1-创建对应仓库"><a href="#2-1-1-创建对应仓库" class="headerlink" title="2.1.1 创建对应仓库"></a>2.1.1 创建对应仓库</h3><p>在自己的GitHub账号下创建一个新的仓库，命名为username.github.io（username是你的账号名)。</p>
+<p>在这里，要知道，GitHub Pages有两种类型：User/Organization Pages 和 Project Pages，而我所使用的是User Pages。</p>
+<p>简单来说，User Pages 与 Project Pages的区别是：</p>
+<ol>
+<li>User Pages 是用来展示用户的，而 Project Pages 是用来展示项目的。</li>
+<li>用于存放 User Pages 的仓库必须使用username.github.io的命名规则，而 Project Pages 则没有特殊的要求。</li>
+<li>User Pages 将使用仓库的 master 分支，而 Project Pages 将使用 gh-pages 分支。</li>
+<li>User Pages 通过 http(s)://username.github.io 进行访问，而 Projects Pages通过 http(s)://username.github.io/projectname 进行访问。</li>
+</ol>
+<h3 id="2-1-2-相关资料"><a href="#2-1-2-相关资料" class="headerlink" title="2.1.2 相关资料"></a>2.1.2 相关资料</h3><ul>
+<li><a href="https://help.github.com/articles/user-organization-and-project-pages/" target="_blank" rel="noopener">GitHub Pages Basics / User, Organization, and Project Pages</a></li>
+</ul>
+<h2 id="2-2-Git"><a href="#2-2-Git" class="headerlink" title="2.2 Git"></a>2.2 Git</h2><h3 id="2-2-1-安装-Git"><a href="#2-2-1-安装-Git" class="headerlink" title="2.2.1 安装 Git"></a>2.2.1 安装 Git</h3><p>在windows下安装git比较常用的有两种方式：</p>
+<ol>
+<li><a href="http://git-scm.com/download/win" target="_blank" rel="noopener">Git 官方版本的安装</a></li>
+<li><a href="https://desktop.github.com/" target="_blank" rel="noopener">GitHub for Windows</a></li>
+</ol>
+<h3 id="2-2-2-配置-Git"><a href="#2-2-2-配置-Git" class="headerlink" title="2.2.2 配置 Git"></a>2.2.2 配置 Git</h3><p>当安装完Git应该做的第一件事情就是设置用户名称和邮件地址。这样做很重要，因为每一个Git的提交都会使用这些信息，并且它会写入你的每一次提交中，不可更改：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git config --global user.name &quot;username&quot;</span><br><span class="line">$ git config --global user.email &quot;username@example.com&quot;</span><br></pre></td></tr></table></figure>
+<p>对于user.email，因为在GitHub的commits信息上是可见的，所以如果你不想让人知道你的email，可以Keeping your email address private:</p>
+<ol>
+<li>在GitHub右上方点击你的头像，选择”Settings”；</li>
+<li>在右边的”Personal settings”侧边栏选择”Emails”；</li>
+<li>选择”Keep my email address private”。</li>
+</ol>
+<p>这样，你就可以使用如下格式的email进行配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git config --global user.email &quot;username@users.noreply.github.com&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-3-相关资料"><a href="#2-2-3-相关资料" class="headerlink" title="2.2.3 相关资料"></a>2.2.3 相关资料</h3><ul>
+<li><a href="http://git-scm.com/book/zh/v2/%E8%B5%B7%E6%AD%A5-%E5%AE%89%E8%A3%85-Git" target="_blank" rel="noopener">安装 Git</a></li>
+<li><a href="http://git-scm.com/book/zh/v2/%E8%B5%B7%E6%AD%A5-%E5%88%9D%E6%AC%A1%E8%BF%90%E8%A1%8C-Git-%E5%89%8D%E7%9A%84%E9%85%8D%E7%BD%AE" target="_blank" rel="noopener">配置 Git</a></li>
+<li><a href="https://help.github.com/articles/setting-your-email-in-git/" target="_blank" rel="noopener">Setting your email in Git</a></li>
+<li><p><a href="https://help.github.com/articles/keeping-your-email-address-private/" target="_blank" rel="noopener">Keeping your email address private</a></p>
+</li>
+<li><p><a href="https://help.github.com/articles/keeping-your-email-address-private/" target="_blank" rel="noopener">Keeping your email address private</a></p>
+</li>
+</ul>
+<h2 id="2-3-Git-与-GitHub"><a href="#2-3-Git-与-GitHub" class="headerlink" title="2.3 Git 与 GitHub"></a>2.3 Git 与 GitHub</h2><h3 id="2-3-1-git与github的区别"><a href="#2-3-1-git与github的区别" class="headerlink" title="2.3.1 git与github的区别"></a>2.3.1 git与github的区别</h3><p>这里，我们要区分清楚git与github。</p>
+<p>git是一个版本控制的工具，而github有点类似于远程仓库，用于存放用git管理的各种项目。</p>
+<h3 id="2-3-2-与github建立联系"><a href="#2-3-2-与github建立联系" class="headerlink" title="2.3.2 与github建立联系"></a>2.3.2 与github建立联系</h3><p>为了能够在本地使用git管理github上的项目，需要进行一些配置，这里介绍SSH的方法。</p>
+<h4 id="2-3-2-1-检查电脑是否已经有SSH-KEYS。"><a href="#2-3-2-1-检查电脑是否已经有SSH-KEYS。" class="headerlink" title="2.3.2.1 检查电脑是否已经有SSH KEYS。"></a>2.3.2.1 检查电脑是否已经有SSH KEYS。</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ls -al ~/.ssh</span><br><span class="line"># Lists the files in your .ssh directory, if they exist</span><br></pre></td></tr></table></figure>
+<p>默认情况下，public keys的文件名是以下的格式之一：id_dsa.pub、id_ecdsa.pub、id_ed25519.pub、id_rsa.pub。因此，如果列出的文件有public和private钥匙对（例如id_ras.pub和id_rsa），证明已存在SSH keys。</p>
+<h4 id="2-3-2-2-如果没有SSH-KEY，则生成新的SSH-KEY。"><a href="#2-3-2-2-如果没有SSH-KEY，则生成新的SSH-KEY。" class="headerlink" title="2.3.2.2 如果没有SSH KEY，则生成新的SSH KEY。"></a>2.3.2.2 如果没有SSH KEY，则生成新的SSH KEY。</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -b 4096 -C &quot;your_email@example.com&quot;</span><br><span class="line"># Creates a new ssh key, using the provided email as a label</span><br></pre></td></tr></table></figure>
+<p>之后一路回车即可。</p>
+<h4 id="2-3-2-3-向SSH-AGENT添加KEY。"><a href="#2-3-2-3-向SSH-AGENT添加KEY。" class="headerlink" title="2.3.2.3 向SSH-AGENT添加KEY。"></a>2.3.2.3 向SSH-AGENT添加KEY。</h4><p>首先确保ssh-agent可运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># start the ssh-agent in the background</span><br><span class="line">$ ssh-agent -s</span><br></pre></td></tr></table></figure>
+<p>然后添加SSH key：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-add ~/.ssh/id_rsa</span><br></pre></td></tr></table></figure>
+<h4 id="2-3-2-4-在GITHUB添加SSH-KEY。"><a href="#2-3-2-4-在GITHUB添加SSH-KEY。" class="headerlink" title="2.3.2.4 在GITHUB添加SSH KEY。"></a>2.3.2.4 在GITHUB添加SSH KEY。</h4><p>首先，拷贝key：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">clip &lt; ~/.ssh/id_rsa.pub</span><br><span class="line"># Copies the contents of the id_rsa.pub file to your cllipboard</span><br></pre></td></tr></table></figure>
+<p>然后，在GitHub右上方点击头像，选择”Settings”，在右边的”Personal settings”侧边栏选择”SSH Keys”。接着粘贴key，点击”Add key”按钮。最后，测试链接：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ssh -T git@github.com</span><br><span class="line"># Attempts to ssh to GitHub</span><br></pre></td></tr></table></figure>
+<p>如果你看到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">The authenticity of host &apos;github.com (207.97.227.239)&apos; can&apos;t be established.</span><br><span class="line">RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)?</span><br></pre></td></tr></table></figure>
+<p>就键入：yes。之后将会看到如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Hi username! You&apos;ve successfully authenticated, but GitHub does not</span><br><span class="line">provide shell access.</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-3-相关资料"><a href="#2-3-3-相关资料" class="headerlink" title="2.3.3 相关资料"></a>2.3.3 相关资料</h3><ul>
+<li><a href="https://help.github.com/articles/generating-ssh-keys/" target="_blank" rel="noopener">Generating SSH keys</a></li>
+</ul>
+<h2 id="2-4-Hexo"><a href="#2-4-Hexo" class="headerlink" title="2.4 Hexo"></a>2.4 Hexo</h2><h3 id="2-4-1-安装Hexo"><a href="#2-4-1-安装Hexo" class="headerlink" title="2.4.1 安装Hexo"></a>2.4.1 安装Hexo</h3><p>安装Hexo相当简单。在安装之前，必须检查电脑中是否已经安装下列应用程序：</p>
+<ul>
+<li><a href="http://nodejs.org/" target="_blank" rel="noopener">Node.js</a></li>
+<li><a href="http://git-scm.com/" target="_blank" rel="noopener">Git</a></li>
+</ul>
+<p>如果您的电脑中已经安装上述必备程序，那么恭喜您！接下来只需要使用 npm 即可完成 Hexo 的安装。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-2-使用Hexo建站"><a href="#2-4-2-使用Hexo建站" class="headerlink" title="2.4.2 使用Hexo建站"></a>2.4.2 使用Hexo建站</h3><p>安装完后，在你喜欢的文件夹内（例如D：\Hexo），点击鼠标右键选择Git bash，输入以下指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init</span><br></pre></td></tr></table></figure>
+<p>该命令会在目标文件夹内建立网站所需要的所有文件。接下来是安装依赖包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+<p>这样，我们就已经搭建起本地的Hexo博客了。可以先执行以下命令（在对应文件夹下），然后再浏览器输入localhost:4000查看。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>这个博客只是本地的，别人是浏览不了的，之后需要部署到GitHub上。</p>
+<h3 id="2-4-3-相关资料"><a href="#2-4-3-相关资料" class="headerlink" title="2.4.3 相关资料"></a>2.4.3 相关资料</h3><ul>
+<li><a href="https://hexo.io/zh-cn/docs/" target="_blank" rel="noopener">Hexo 官方文档</a></li>
+</ul>
+<h2 id="三、一般的搭建方法"><a href="#三、一般的搭建方法" class="headerlink" title="三、一般的搭建方法"></a>三、一般的搭建方法</h2><p>在上面，我们已经配置好了所需的所有东西，也成功地搭建了一个本地Hexo博客。现在，需要使用GitHub Pages搭建一个别人能够访问的Hexo博客了。</p>
+<h3 id="3-1-使用默认theme"><a href="#3-1-使用默认theme" class="headerlink" title="3.1 使用默认theme"></a>3.1 使用默认theme</h3><p>我们继续使用上面的文件夹D:\Hexo（也可以新建一个文件夹重新生成），然后编辑该文件夹下的_config.yml。</p>
+<p>默认生成的_config.yml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: http://hexo.io/docs/deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type:</span><br></pre></td></tr></table></figure>
+<p>修改后的_config.yml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: 对应仓库的SSH地址（可以在GitHub对应的仓库中复制）</span><br><span class="line">  branch: 分支（User Pages为master，Project Pages为gh-pages）</span><br></pre></td></tr></table></figure>
+<p>为了能够使Hexo部署到GitHub上，需要安装一个插件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>然后，执行下列指令即可完成部署：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>之后，可以通过在浏览器键入：username.github.io进行浏览，开心吧~</p>
+<h3 id="3-2-其他theme"><a href="#3-2-其他theme" class="headerlink" title="3.2 其他theme"></a>3.2 其他theme</h3><p>如果想要使用其他主题，可以使用git clone将别人的主题拷贝到D:\Hexo\themes下，然后将_config.yml中的theme: landscape改为对应的主题名字。</p>
+<p>详细步骤可以参考网上的指南。</p>
+<h2 id="四、-优化部署与管理"><a href="#四、-优化部署与管理" class="headerlink" title="四、 优化部署与管理"></a>四、 优化部署与管理</h2><h3 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="4.1 概述"></a>4.1 概述</h3><p>Hexo部署到GitHub上的文件，是.md（你的博文）转化之后的.html（静态网页）。因此，当你重装电脑或者想在不同电脑上修改博客时，就不可能了（除非你自己写html o(^▽^)o ）。</p>
+<p>其实，Hexo生成的网站文件中有.gitignore文件，因此它的本意也是想我们将Hexo生成的网站文件存放到GitHub上进行管理的（而不是用U盘或者云备份啦(╬▔皿▔)凸）。这样，不仅解决了上述的问题，还可以通过git的版本控制追踪你的博文的修改过程，是极赞的。</p>
+<p>但是，如果每一个GitHub Pages都需要创建一个额外的仓库来存放Hexo网站文件，我感觉很麻烦（10个项目需要20个仓库(ˉ▽ˉ；)…）。</p>
+<p>所以，我利用了分支！！！</p>
+<p>简单地说，每个想建立GitHub Pages的仓库，起码有两个分支，一个用来存放Hexo网站的文件，一个用来发布网站。</p>
+<p>下面以我的博客作为例子详细地讲述。</p>
+<h3 id="4-2-我的博客搭建流程"><a href="#4-2-我的博客搭建流程" class="headerlink" title="4.2 我的博客搭建流程"></a>4.2 我的博客搭建流程</h3><ol>
+<li>创建仓库，CrazyMilk.github.io；</li>
+<li>创建两个分支：master 与 hexo；</li>
+<li>设置hexo为默认分支（因为我们只需要手动管理这个分支上的Hexo网站文件）；</li>
+<li>使用git clone <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:CrazyMilk/CrazyMilk.github.io.git拷贝仓库；</li>
+<li>在本地CrazyMilk.github.io文件夹下通过Git bash依次执行npm install hexo、hexo init、npm install 和 npm install hexo-deployer-git（此时当前分支应显示为hexo）;</li>
+<li>修改_config.yml中的deploy参数，分支应为master；</li>
+<li>依次执行git add .、git commit -m “…”、git push origin hexo提交网站相关的文件；</li>
+<li>执行hexo generate -d生成网站并部署到GitHub上。</li>
+</ol>
+<p>这样一来，在GitHub上的CrazyMilk.github.io仓库就有两个分支，一个hexo分支用来存放网站的原始文件，一个master分支用来存放生成的静态网页。完美( •̀ ω •́ )y！</p>
+<h3 id="4-3-我的博客管理流程"><a href="#4-3-我的博客管理流程" class="headerlink" title="4.3 我的博客管理流程"></a>4.3 我的博客管理流程</h3><h4 id="4-3-1-日常修改"><a href="#4-3-1-日常修改" class="headerlink" title="4.3.1 日常修改"></a>4.3.1 日常修改</h4><p>在本地对博客进行修改（添加新博文、修改样式等等）后，通过下面的流程进行管理：</p>
+<ol>
+<li>依次执行git add .、git commit -m “…”、git push origin hexo指令将改动推送到GitHub（此时当前分支应为hexo）；</li>
+<li>然后才执行hexo generate -d发布网站到master分支上。</li>
+</ol>
+<p>虽然两个过程顺序调转一般不会有问题，不过逻辑上这样的顺序是绝对没问题的（例如突然死机要重装了，悲催….的情况，调转顺序就有问题了）。</p>
+<h4 id="4-3-2-本地资料丢失"><a href="#4-3-2-本地资料丢失" class="headerlink" title="4.3.2 本地资料丢失"></a>4.3.2 本地资料丢失</h4><p>当重装电脑之后，或者想在其他电脑上修改博客，可以使用下列步骤：</p>
+<ol>
+<li>使用git clone <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:CrazyMilk/CrazyMilk.github.io.git拷贝仓库（默认分支为hexo）；</li>
+<li>在本地新拷贝的CrazyMilk.github.io文件夹下通过Git bash依次执行下列指令：npm install hexo、npm install、npm install hexo-deployer-git（记得，不需要hexo init这条指令）。</li>
+</ol>
+<h2 id="五、结尾"><a href="#五、结尾" class="headerlink" title="五、结尾"></a>五、结尾</h2><p>好累 (-.-)=3 (-.-)=3</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Hexo搭建个人博客/">Hexo搭建个人博客</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Hexo/">Hexo</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://lin38.github.io/2018/07/26/【转载】GitHub-Pages-Hexo搭建博客/" data-title="【转载】GitHub Pages + Hexo搭建博客 | John Lin的博客" data-tsina="2756295365" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/27/java并发编程/java并发编程-1-线程安全&synchronized&volatile/" title="java并发编程-1-线程安全&amp;synchronized&amp;volatile">
+  <strong>上一篇：</strong><br/>
+  <span>
+  java并发编程-1-线程安全&amp;synchronized&amp;volatile</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、-前言"><span class="toc-text">一、 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、-必要配置"><span class="toc-text">二、 必要配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-GitHub-Pages-仓库"><span class="toc-text">2.1 GitHub Pages 仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-1-创建对应仓库"><span class="toc-text">2.1.1 创建对应仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-2-相关资料"><span class="toc-text">2.1.2 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Git"><span class="toc-text">2.2 Git</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1-安装-Git"><span class="toc-text">2.2.1 安装 Git</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2-配置-Git"><span class="toc-text">2.2.2 配置 Git</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3-相关资料"><span class="toc-text">2.2.3 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Git-与-GitHub"><span class="toc-text">2.3 Git 与 GitHub</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-git与github的区别"><span class="toc-text">2.3.1 git与github的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-与github建立联系"><span class="toc-text">2.3.2 与github建立联系</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-1-检查电脑是否已经有SSH-KEYS。"><span class="toc-text">2.3.2.1 检查电脑是否已经有SSH KEYS。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-2-如果没有SSH-KEY，则生成新的SSH-KEY。"><span class="toc-text">2.3.2.2 如果没有SSH KEY，则生成新的SSH KEY。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-3-向SSH-AGENT添加KEY。"><span class="toc-text">2.3.2.3 向SSH-AGENT添加KEY。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-4-在GITHUB添加SSH-KEY。"><span class="toc-text">2.3.2.4 在GITHUB添加SSH KEY。</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-相关资料"><span class="toc-text">2.3.3 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Hexo"><span class="toc-text">2.4 Hexo</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1-安装Hexo"><span class="toc-text">2.4.1 安装Hexo</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2-使用Hexo建站"><span class="toc-text">2.4.2 使用Hexo建站</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-3-相关资料"><span class="toc-text">2.4.3 相关资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、一般的搭建方法"><span class="toc-text">三、一般的搭建方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-使用默认theme"><span class="toc-text">3.1 使用默认theme</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-其他theme"><span class="toc-text">3.2 其他theme</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、-优化部署与管理"><span class="toc-text">四、 优化部署与管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-概述"><span class="toc-text">4.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-我的博客搭建流程"><span class="toc-text">4.2 我的博客搭建流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-我的博客管理流程"><span class="toc-text">4.3 我的博客管理流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-1-日常修改"><span class="toc-text">4.3.1 日常修改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-2-本地资料丢失"><span class="toc-text">4.3.2 本地资料丢失</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、结尾"><span class="toc-text">五、结尾</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Hexo搭建个人博客/" title="Hexo搭建个人博客">Hexo搭建个人博客<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java并发编程/" title="java并发编程">java并发编程<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java网络编程/" title="java网络编程">java网络编程<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/序列化/" title="序列化">序列化<sup>4</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/ServerSocketChannel/" title="ServerSocketChannel">ServerSocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SocketChannel/" title="SocketChannel">SocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Selector/" title="Selector">Selector<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/transient/" title="transient">transient<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Serializable/" title="Serializable">Serializable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Externalizable/" title="Externalizable">Externalizable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Callable/" title="Callable">Callable<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentHashMap/" title="ConcurrentHashMap">ConcurrentHashMap<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ArrayBlockingQueue/" title="ArrayBlockingQueue">ArrayBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentLinkedQueue/" title="ConcurrentLinkedQueue">ConcurrentLinkedQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingDeque/" title="LinkedBlockingDeque">LinkedBlockingDeque<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingQueue/" title="LinkedBlockingQueue">LinkedBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SynchronousQueue/" title="SynchronousQueue">SynchronousQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/PriorityBlockingQueue/" title="PriorityBlockingQueue">PriorityBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DelayQueue/" title="DelayQueue">DelayQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/wait/" title="wait">wait<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/notify/" title="notify">notify<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ThreadLocal/" title="ThreadLocal">ThreadLocal<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程池/" title="线程池">线程池<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 程序员的进步史 <br/>
+			To be a better man!</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2756295365" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/lin38" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/133002175" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/johnlin-56-26" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:1135191951@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="John Lin">John Lin</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -1,0 +1,625 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>java并发编程-3-同步类容器&amp;并发类容器 | John Lin的博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="John Lin">
+    
+
+    
+    <meta name="description" content="1、同步类容器​    同步类容器都是线程安全的，但在某些场景下可能需要加锁来保护复合操作。 ​    复合操作如：迭代（反复访问元素，遍历完容器中所有的元素）、跳转（根据指定的顺序找到当前元素的下一个元素）、以及条件运算。 ​    这些复合操作在多线程并发的修改容器时，可能会表现出意外的行为，最经典的便是ConcurrentModificationException，原因是当容器迭代的过程中，">
+<meta name="keywords" content="ConcurrentHashMap,ArrayBlockingQueue,ConcurrentLinkedQueue,LinkedBlockingDeque,LinkedBlockingQueue,SynchronousQueue,PriorityBlockingQueue,DelayQueue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java并发编程-3-同步类容器&amp;并发类容器">
+<meta property="og:url" content="http://lin38.github.io/2018/07/28/java并发编程/java并发编程-3-同步类容器&并发类容器/index.html">
+<meta property="og:site_name" content="John Lin的博客">
+<meta property="og:description" content="1、同步类容器​    同步类容器都是线程安全的，但在某些场景下可能需要加锁来保护复合操作。 ​    复合操作如：迭代（反复访问元素，遍历完容器中所有的元素）、跳转（根据指定的顺序找到当前元素的下一个元素）、以及条件运算。 ​    这些复合操作在多线程并发的修改容器时，可能会表现出意外的行为，最经典的便是ConcurrentModificationException，原因是当容器迭代的过程中，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://lin38.github.io/2018/07/28/java并发编程/java并发编程-3-同步类容器&并发类容器/queue.png">
+<meta property="og:updated_time" content="2018-09-13T06:01:30.780Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java并发编程-3-同步类容器&amp;并发类容器">
+<meta name="twitter:description" content="1、同步类容器​    同步类容器都是线程安全的，但在某些场景下可能需要加锁来保护复合操作。 ​    复合操作如：迭代（反复访问元素，遍历完容器中所有的元素）、跳转（根据指定的顺序找到当前元素的下一个元素）、以及条件运算。 ​    这些复合操作在多线程并发的修改容器时，可能会表现出意外的行为，最经典的便是ConcurrentModificationException，原因是当容器迭代的过程中，">
+<meta name="twitter:image" content="http://lin38.github.io/2018/07/28/java并发编程/java并发编程-3-同步类容器&并发类容器/queue.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="John Lin的博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="John Lin的博客" title="John Lin的博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="John Lin的博客">John Lin的博客</a></h1>
+				<h2 class="blog-motto">杂技：复杂的技术，繁杂的技术，混杂的技术。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/tags">标签</a></li>
+					
+						<li><a href="/categories">分类</a></li>
+					
+					<li>
+ 					
+                    <!--
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:lin38.github.io">
+					</form>
+                    -->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/28/java并发编程/java并发编程-3-同步类容器&并发类容器/" title="java并发编程-3-同步类容器&amp;并发类容器" itemprop="url">java并发编程-3-同步类容器&amp;并发类容器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="John Lin" target="_blank" itemprop="author">John Lin</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-28T09:28:18.000Z" itemprop="datePublished"> 发表于 2018-07-28</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、同步类容器"><span class="toc-text">1、同步类容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、并发类容器"><span class="toc-text">2、并发类容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、ConcurrentMap"><span class="toc-text">3、ConcurrentMap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4、Copy-On-Write容器"><span class="toc-text">4、Copy-On-Write容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5、并发Queue"><span class="toc-text">5、并发Queue</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6、ConcurrentLinkedQueue"><span class="toc-text">6、ConcurrentLinkedQueue</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7、BlockingQueue接口"><span class="toc-text">7、BlockingQueue接口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-1-ArrayBlockingQueue"><span class="toc-text">7.1 ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-2-LinkedBlockingQueue"><span class="toc-text">7.2 LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-3-PriorityBlockingQueue"><span class="toc-text">7.3 PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-4-DelayQueue"><span class="toc-text">7.4 DelayQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-5、SynchronousQueue"><span class="toc-text">7.5、SynchronousQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-6-LinkedBlockingDeque"><span class="toc-text">7.6 LinkedBlockingDeque</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<h1 id="1、同步类容器"><a href="#1、同步类容器" class="headerlink" title="1、同步类容器"></a>1、同步类容器</h1><p>​    同步类容器都是线程安全的，但在某些场景下可能需要加锁来保护复合操作。</p>
+<p>​    复合操作如：迭代（反复访问元素，遍历完容器中所有的元素）、跳转（根据指定的顺序找到当前元素的下一个元素）、以及条件运算。</p>
+<p>​    这些复合操作在多线程并发的修改容器时，可能会表现出意外的行为，最经典的便是ConcurrentModificationException，原因是当容器迭代的过程中，被并发的修改了内容，这是由于早期迭代器设计的时候没有考虑并发修改的问题。</p>
+<p>​    同步类容器：如古老的Vector、HashTable。这些容器的同步功能，其实都是由JDK的Collections.synchronized***等工厂方法去创建实现的。其底层的机制无非就是传统的synchronized关键字对每个公用的方法都进行同步，使得每次只有一个线程访问容器的状态。这很明显不满足我们今天互联网时代高并发的需求，在保证线程安全的同时，也必须要有足够好的性能。</p>
+<h1 id="2、并发类容器"><a href="#2、并发类容器" class="headerlink" title="2、并发类容器"></a>2、并发类容器</h1><p>​    jdk5.0以后提供了多种并发类容器来替代同步类容器，从而改善性能。同步类容器的状态都是串行化的。他们虽然实现了线程安全，但是严重降低了并发性，在多线程环境时，严重降低了应用程序的吞吐量。</p>
+<p>​    并发类容器是专门针对并发设计的，使用ConcurrentHashMap来代替传统的HashTable，而且在ConcurrentHashMap中，还添加了一些常用复合操作的支持。使用了CopyOnWriteArrayList代替Vector。</p>
+<p>​    并发的Queue：ConcurrentLinkedQueue和LinkedBlockingQueue。前者是提高性能的队列，后者是阻塞形式的队列。具体实现的Queue还有很多，例如ArrayBlockingQueue、PriorityBlockingQueue、SynchronousQueue等。</p>
+<h1 id="3、ConcurrentMap"><a href="#3、ConcurrentMap" class="headerlink" title="3、ConcurrentMap"></a>3、ConcurrentMap</h1><p>​    ConcurrentMap接口下有两个重要的实现：</p>
+<ul>
+<li><p>ConcurrentHashMap</p>
+</li>
+<li><p>ConcurrentSkipListMap（支持并发排序功能，弥补ConcurrentHashMap）</p>
+<p> ConcurrentHashMap内部使用段（Segment）来表示这些不同的部分，每个段其实就是一个小的HashTable，它们有自己的锁。只要多个修改操作发生在不同的段上，它们就可以并发进行。把一个整体分成了16个段，也就是最高支持16个线程的并发修改操作。这也是在多线程场景时减小锁的粒度从而降低锁竞争的一种方案。并且代码中大多共享变量使用volatile关键字声明，目的是第一时间获取修改的内容，性能非常好。</p>
+</li>
+</ul>
+<a id="more"></a>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo001;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseConcurrentMap</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		ConcurrentHashMap&lt;String, Object&gt; chm = <span class="keyword">new</span> ConcurrentHashMap&lt;String, Object&gt;();</span><br><span class="line">		chm.put(<span class="string">"k1"</span>, <span class="string">"v1"</span>);</span><br><span class="line">		chm.put(<span class="string">"k2"</span>, <span class="string">"v2"</span>);</span><br><span class="line">		chm.put(<span class="string">"k3"</span>, <span class="string">"v3"</span>);</span><br><span class="line">		chm.putIfAbsent(<span class="string">"k4"</span>, <span class="string">"vvvv"</span>);</span><br><span class="line">		chm.putIfAbsent(<span class="string">"k4"</span>, <span class="string">"vvvv2"</span>);</span><br><span class="line">		System.out.println(chm.size());</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (Map.Entry&lt;String, Object&gt; me : chm.entrySet()) &#123;</span><br><span class="line">			System.out.println(<span class="string">"key:"</span> + me.getKey() + <span class="string">",value:"</span> + me.getValue());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">4</span><br><span class="line">key:k1,value:v1</span><br><span class="line">key:k2,value:v2</span><br><span class="line">key:k3,value:v3</span><br><span class="line">key:k4,value:vvvv</span><br></pre></td></tr></table></figure>
+<h1 id="4、Copy-On-Write容器"><a href="#4、Copy-On-Write容器" class="headerlink" title="4、Copy-On-Write容器"></a>4、Copy-On-Write容器</h1><p>​    Copy-On-Write简称COW，是一种用于程序设计中的优化策略。</p>
+<p>​    JDK里的COW容器有两种：CopyOnWriteArrayList和CopyOnWriteArraySet。</p>
+<p>​    什么是CopyOnWrite容器？CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为读操作不会添加任何元素到容器中。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。</p>
+<h1 id="5、并发Queue"><a href="#5、并发Queue" class="headerlink" title="5、并发Queue"></a>5、并发Queue</h1><p>​    在并发队列上JDK提供了两套实现，一个是以ConcurrentLinkedQueue为代表的高性能队列，一个是以BlockingQueue接口为代表的阻塞队列，无论哪种都继承自Queue。</p>
+<p><img src="/2018/07/28/java并发编程/java并发编程-3-同步类容器&并发类容器/queue.png" alt=""></p>
+<h1 id="6、ConcurrentLinkedQueue"><a href="#6、ConcurrentLinkedQueue" class="headerlink" title="6、ConcurrentLinkedQueue"></a>6、ConcurrentLinkedQueue</h1><p>​    ConcurrentLinkedQueue是一个适用于高并发场景下的队列，通过无锁的方式，实现了高并发状态下的高性能，通常ConcurrentLinkedQueue性能好于BlockingQueue。它是一个基于链接节点的无界线程安全队列。该队列的元素遵循先进先出的原则。头是最先加入的，尾是最近加入的，该队列不允许null元素。</p>
+<p>​    ConcurrentLinkedQueue重要方法：</p>
+<ul>
+<li><p>add()和offer()：都是加入元素的方法（在ConcurrentLinkedQueue中，这两个方法没有任何区别）</p>
+<p>从源码中可知，add()方法就是调用的offer()方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> offer(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>poll()和peek()：都是取头元素节点，区别在于前者会删除元素，后者不会</p>
+</li>
+</ul>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseConcurrentLinkedQueue</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 高性能无阻塞无界队列：ConcurrentLinkedQueue</span></span><br><span class="line">		ConcurrentLinkedQueue&lt;String&gt; q = <span class="keyword">new</span> ConcurrentLinkedQueue&lt;String&gt;();</span><br><span class="line">		<span class="comment">// 在ConcurrentLinkedQueue中，可以认为offer()方法和add()这两个方法没有任何区别</span></span><br><span class="line">		q.offer(<span class="string">"a"</span>);</span><br><span class="line">		q.offer(<span class="string">"b"</span>);</span><br><span class="line">		q.offer(<span class="string">"c"</span>);</span><br><span class="line">		q.offer(<span class="string">"d"</span>);</span><br><span class="line">		q.add(<span class="string">"e"</span>);</span><br><span class="line"></span><br><span class="line">		System.out.println(q.poll()); <span class="comment">// a 从头部取出元素，并从队列里删除</span></span><br><span class="line">		System.out.println(q.size()); <span class="comment">// 4</span></span><br><span class="line">		System.out.println(q.peek()); <span class="comment">// b 从头部取出元素，不从队列里删除</span></span><br><span class="line">		System.out.println(q.size()); <span class="comment">// 4</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">4</span><br><span class="line">b</span><br><span class="line">4</span><br></pre></td></tr></table></figure>
+<h1 id="7、BlockingQueue接口"><a href="#7、BlockingQueue接口" class="headerlink" title="7、BlockingQueue接口"></a>7、BlockingQueue接口</h1><h2 id="7-1-ArrayBlockingQueue"><a href="#7-1-ArrayBlockingQueue" class="headerlink" title="7.1 ArrayBlockingQueue"></a>7.1 ArrayBlockingQueue</h2><p>​    基于数组的阻塞队列实现，在ArrayBlockingQueue内部，维护了一个定长数组，以便缓存队列中的数据对象，其内部没实现读写分离，也就意味着生产和消费不能完全并行。长度是需要定义的。可以指定先进先出或者先进后出。也叫做有界队列。</p>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ArrayBlockingQueue;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseArrayBlockingQueue</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		<span class="comment">// 阻塞队列BlockingQueue</span></span><br><span class="line">		ArrayBlockingQueue&lt;String&gt; array = <span class="keyword">new</span> ArrayBlockingQueue&lt;String&gt;(<span class="number">5</span>);</span><br><span class="line">		<span class="comment">// 在空间未满时，offer()、put()和add()都可以正常加入元素</span></span><br><span class="line">		array.offer(<span class="string">"a"</span>);</span><br><span class="line">		array.put(<span class="string">"b"</span>);</span><br><span class="line">		array.add(<span class="string">"c"</span>);</span><br><span class="line">		array.add(<span class="string">"d"</span>);</span><br><span class="line">		array.add(<span class="string">"e"</span>);</span><br><span class="line">		System.out.println(array.size());</span><br><span class="line">		<span class="comment">// 当空间已满时，put()方法会阻塞住，直到有空间可以插入元素</span></span><br><span class="line"><span class="comment">//		array.put("f");</span></span><br><span class="line">		<span class="comment">// 当空间已满时，add()方法会直接抛出异常</span></span><br><span class="line"><span class="comment">//		array.add("f");</span></span><br><span class="line">		<span class="comment">// 当空间已满时，offer()方法不会抛出异常，而是返回插入的结果（true/false）</span></span><br><span class="line"><span class="comment">//		array.offer("f");</span></span><br><span class="line">		<span class="comment">// 可以为offer()方法设置超时时间，如果在超时时间之内未完成插入操作，则返回false，否则返回true，不抛出异常</span></span><br><span class="line"><span class="comment">//		System.out.println(array.offer("a", 3, TimeUnit.SECONDS));</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="7-2-LinkedBlockingQueue"><a href="#7-2-LinkedBlockingQueue" class="headerlink" title="7.2 LinkedBlockingQueue"></a>7.2 LinkedBlockingQueue</h2><p>​    基于链表的阻塞队列，同ArrayBlockingQueue类似，其内部也维护着一个数据缓冲队列（该队列由一个链表构成），LinkedBlockingQueue之所以能够高效的处理并发数据，是因为其内部实现采用分离锁（读写分离两个锁），从而实现生产者和消费者操作的完全并行运行。它是一个无界队列（默认容量为Integer.MAX_VALUE，基本可认为无界）。</p>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.LinkedBlockingQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseLinkedBlockingQueue</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		LinkedBlockingQueue&lt;String&gt; q = <span class="keyword">new</span> LinkedBlockingQueue&lt;String&gt;();</span><br><span class="line">		<span class="comment">// offer()方法和add()方法的区别，也是在空间满了的时候，offer()不抛出异常，只返回操作结果，add()会抛出异常</span></span><br><span class="line">		q.offer(<span class="string">"a"</span>);</span><br><span class="line">		q.offer(<span class="string">"b"</span>);</span><br><span class="line">		q.offer(<span class="string">"c"</span>);</span><br><span class="line">		q.offer(<span class="string">"d"</span>);</span><br><span class="line">		q.offer(<span class="string">"e"</span>);</span><br><span class="line">		q.add(<span class="string">"f"</span>);</span><br><span class="line">		System.out.println(<span class="string">"q size:"</span> + q.size());</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (Iterator&lt;String&gt; iterator = q.iterator(); iterator.hasNext();) &#123;</span><br><span class="line">			System.out.println(iterator.next());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">		System.out.println(<span class="string">"transferred number:"</span> + q.drainTo(list, <span class="number">3</span>));</span><br><span class="line">		System.out.println(<span class="string">"list size:"</span> + list.size());</span><br><span class="line">		System.out.println(<span class="string">"q size:"</span> + q.size());</span><br><span class="line">		<span class="keyword">for</span> (String string : list) &#123;</span><br><span class="line">			System.out.println(string);</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println(<span class="string">"------------------"</span>);</span><br><span class="line">		<span class="keyword">for</span> (Iterator&lt;String&gt; iterator = q.iterator(); iterator.hasNext();) &#123;</span><br><span class="line">			System.out.println(iterator.next());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">q size:6</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br><span class="line">d</span><br><span class="line">e</span><br><span class="line">f</span><br><span class="line">transferred number:3</span><br><span class="line">list size:3</span><br><span class="line">q size:3</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br><span class="line">------------------</span><br><span class="line">d</span><br><span class="line">e</span><br><span class="line">f</span><br></pre></td></tr></table></figure>
+<h2 id="7-3-PriorityBlockingQueue"><a href="#7-3-PriorityBlockingQueue" class="headerlink" title="7.3 PriorityBlockingQueue"></a>7.3 PriorityBlockingQueue</h2><p>​    基于优先级的阻塞队列（优先级的判断通过构造函数传入的Comparator对象来决定，也就是说传入队列的对象必须实现Comparable接口），在实现PriorityBlockingQueue时，内部控制线程同步的锁采用的是公平锁，他是一个无界队列。</p>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo003;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Task</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Task</span>&gt; </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">	<span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Task task)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">this</span>.id &gt; task.id ? <span class="number">1</span> : <span class="keyword">this</span>.id &lt; task.id ? -<span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 省略getter、setter</span></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"Task [id="</span> + id + <span class="string">", name="</span> + name + <span class="string">"]"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo003;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.PriorityBlockingQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UsePriorityBlockingQueue</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		PriorityBlockingQueue&lt;Task&gt; q = <span class="keyword">new</span> PriorityBlockingQueue&lt;Task&gt;();</span><br><span class="line">		Task t1 = <span class="keyword">new</span> Task();</span><br><span class="line">		t1.setId(<span class="number">3</span>);</span><br><span class="line">		t1.setName(<span class="string">"id为3"</span>);</span><br><span class="line">		Task t2 = <span class="keyword">new</span> Task();</span><br><span class="line">		t2.setId(<span class="number">4</span>);</span><br><span class="line">		t2.setName(<span class="string">"id为4"</span>);</span><br><span class="line">		Task t3 = <span class="keyword">new</span> Task();</span><br><span class="line">		t3.setId(<span class="number">1</span>);</span><br><span class="line">		t3.setName(<span class="string">"id为1"</span>);</span><br><span class="line">		Task t4 = <span class="keyword">new</span> Task();</span><br><span class="line">		t4.setId(<span class="number">2</span>);</span><br><span class="line">		t4.setName(<span class="string">"id为2"</span>);</span><br><span class="line">		q.add(t1); <span class="comment">// 3</span></span><br><span class="line">		q.add(t2); <span class="comment">// 4</span></span><br><span class="line">		q.add(t3); <span class="comment">// 1</span></span><br><span class="line">		q.add(t4); <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// 1 2 3 4</span></span><br><span class="line">		System.out.println(<span class="string">"容器："</span> + q);</span><br><span class="line">		System.out.println(q.take());</span><br><span class="line">		System.out.println(<span class="string">"容器："</span> + q);</span><br><span class="line">		System.out.println(q.take());</span><br><span class="line">		System.out.println(<span class="string">"容器："</span> + q);</span><br><span class="line">		System.out.println(q.take());</span><br><span class="line">		System.out.println(<span class="string">"容器："</span> + q);</span><br><span class="line">		System.out.println(q.take());</span><br><span class="line">		System.out.println(<span class="string">"容器："</span> + q);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">容器：[Task [id=1, name=id为1], Task [id=2, name=id为2], Task [id=3, name=id为3], Task [id=4, name=id为4]]</span><br><span class="line">Task [id=1, name=id为1]</span><br><span class="line">容器：[Task [id=2, name=id为2], Task [id=4, name=id为4], Task [id=3, name=id为3]]</span><br><span class="line">Task [id=2, name=id为2]</span><br><span class="line">容器：[Task [id=3, name=id为3], Task [id=4, name=id为4]]</span><br><span class="line">Task [id=3, name=id为3]</span><br><span class="line">容器：[Task [id=4, name=id为4]]</span><br><span class="line">Task [id=4, name=id为4]</span><br><span class="line">容器：[]</span><br></pre></td></tr></table></figure>
+<h2 id="7-4-DelayQueue"><a href="#7-4-DelayQueue" class="headerlink" title="7.4 DelayQueue"></a>7.4 DelayQueue</h2><p>​    带有延迟时间的Queue，其中的元素只有当其指定的延迟时间到了，才能从列队中获取到该元素。DelayQueue中的元素必须实现Delayed接口，DelayQueue是一个没有大小限制的队列，应用场景很多，比如缓存超时的数据进行移除、任务超时处理、空闲连接的关闭等。</p>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo004;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Delayed;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Wangmin</span> <span class="keyword">implements</span> <span class="title">Delayed</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> String name;</span><br><span class="line">	<span class="comment">// 身份证</span></span><br><span class="line">	<span class="keyword">private</span> String id;</span><br><span class="line">	<span class="comment">// 截止时间</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">long</span> endTime;</span><br><span class="line">	<span class="comment">// 定义时间工具类</span></span><br><span class="line">	<span class="keyword">private</span> TimeUnit timeUnit = TimeUnit.SECONDS;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Wangmin</span><span class="params">(String name, String id, <span class="keyword">long</span> endTime)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name = name;</span><br><span class="line">		<span class="keyword">this</span>.id = id;</span><br><span class="line">		<span class="keyword">this</span>.endTime = endTime;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">this</span>.name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">this</span>.id;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 用来判断是否到了截止时间</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getDelay</span><span class="params">(TimeUnit unit)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> endTime - System.currentTimeMillis();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 相互比较排序</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Delayed delayed)</span> </span>&#123;</span><br><span class="line">		Wangmin w = (Wangmin) delayed;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">this</span>.getDelay(<span class="keyword">this</span>.timeUnit) - w.getDelay(<span class="keyword">this</span>.timeUnit) &gt; <span class="number">0</span> ? <span class="number">1</span></span><br><span class="line">				: <span class="keyword">this</span>.getDelay(<span class="keyword">this</span>.timeUnit) - w.getDelay(<span class="keyword">this</span>.timeUnit) &lt; <span class="number">0</span> ? -<span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">package com.example.part_03_container.demo004;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.DelayQueue;</span><br><span class="line"></span><br><span class="line">public class WangBa implements Runnable &#123;</span><br><span class="line">	private DelayQueue&lt;Wangmin&gt; queue = new DelayQueue&lt;Wangmin&gt;();</span><br><span class="line">	public boolean yingye = true; // 是否营业</span><br><span class="line"></span><br><span class="line">	public void shangji(String name, String id, int money) &#123;</span><br><span class="line">		Wangmin man = new Wangmin(name, id, 1000 * money + System.currentTimeMillis());</span><br><span class="line">		System.out.println(&quot;网民&quot; + man.getName() + &quot; 身份证&quot; + man.getId() + &quot;交钱&quot; + money + &quot;块,开始上机...&quot;);</span><br><span class="line">		this.queue.add(man);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public void xiaji(Wangmin man) &#123;</span><br><span class="line">		System.out.println(&quot;网民&quot; + man.getName() + &quot; 身份证&quot; + man.getId() + &quot;时间到下机...&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	public void run() &#123;</span><br><span class="line">		while (yingye) &#123;</span><br><span class="line">			try &#123;</span><br><span class="line">				Wangmin man = queue.take();</span><br><span class="line">				xiaji(man);</span><br><span class="line">			&#125; catch (InterruptedException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public static void main(String args[]) &#123;</span><br><span class="line">		try &#123;</span><br><span class="line">			System.out.println(&quot;网吧开始营业&quot;);</span><br><span class="line">			WangBa wangba = new WangBa();</span><br><span class="line">			Thread shangwang = new Thread(wangba);</span><br><span class="line">			shangwang.start();</span><br><span class="line">			wangba.shangji(&quot;路人甲&quot;, &quot;123&quot;, 1);</span><br><span class="line">			wangba.shangji(&quot;路人乙&quot;, &quot;234&quot;, 10);</span><br><span class="line">			wangba.shangji(&quot;路人丙&quot;, &quot;345&quot;, 5);</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">网吧开始营业</span><br><span class="line">网民路人甲 身份证123交钱1块,开始上机...</span><br><span class="line">网民路人乙 身份证234交钱10块,开始上机...</span><br><span class="line">网民路人丙 身份证345交钱5块,开始上机...</span><br><span class="line">网民路人甲 身份证123时间到下机...</span><br><span class="line">网民路人丙 身份证345时间到下机...</span><br><span class="line">网民路人乙 身份证234时间到下机...</span><br></pre></td></tr></table></figure>
+<h2 id="7-5、SynchronousQueue"><a href="#7-5、SynchronousQueue" class="headerlink" title="7.5、SynchronousQueue"></a>7.5、SynchronousQueue</h2><p>​    一个没有缓冲的队列，生产者产生的数据直接会被消费者获取并消费。</p>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.SynchronousQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseSynchronousQueue</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 必须先有一个take等待着，再有一个add，否则会出现Queue full错误（可将t1删除进行试验）</span></span><br><span class="line">		<span class="keyword">final</span> SynchronousQueue&lt;String&gt; q = <span class="keyword">new</span> SynchronousQueue&lt;String&gt;();</span><br><span class="line">		</span><br><span class="line">		Thread t1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">			<span class="meta">@Override</span></span><br><span class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">				<span class="keyword">try</span> &#123;</span><br><span class="line">					System.out.println(q.take());</span><br><span class="line">				&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">		t1.start();</span><br><span class="line">		</span><br><span class="line">		Thread t2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">			<span class="meta">@Override</span></span><br><span class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">				q.add(<span class="string">"asdasd"</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">		t2.start();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="7-6-LinkedBlockingDeque"><a href="#7-6-LinkedBlockingDeque" class="headerlink" title="7.6 LinkedBlockingDeque"></a>7.6 LinkedBlockingDeque</h2><p>​    双向队列，可以从头/尾加入或取出元素。</p>
+<center>示例：</center>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.part_03_container.demo002;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.LinkedBlockingDeque;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * LinkedBlockingDeque</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseDeque</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">		LinkedBlockingDeque&lt;String&gt; dq = <span class="keyword">new</span> LinkedBlockingDeque&lt;String&gt;(<span class="number">10</span>);</span><br><span class="line">		dq.addFirst(<span class="string">"a"</span>);</span><br><span class="line">		dq.addFirst(<span class="string">"b"</span>);</span><br><span class="line">		dq.addFirst(<span class="string">"c"</span>);</span><br><span class="line">		dq.addFirst(<span class="string">"d"</span>);</span><br><span class="line">		dq.addFirst(<span class="string">"e"</span>);</span><br><span class="line">		dq.addLast(<span class="string">"f"</span>);</span><br><span class="line">		dq.addLast(<span class="string">"g"</span>);</span><br><span class="line">		dq.addLast(<span class="string">"h"</span>);</span><br><span class="line">		dq.addLast(<span class="string">"i"</span>);</span><br><span class="line">		dq.addLast(<span class="string">"j"</span>);</span><br><span class="line">		<span class="comment">// dq.addLast("k"); // 已经超过10个范围，会抛出异常：Deque full</span></span><br><span class="line">		<span class="keyword">boolean</span> result = dq.offerFirst(<span class="string">"k"</span>); <span class="comment">// 如果有空间可插入则插入成功，否则失败，不会抛出异常</span></span><br><span class="line">		System.out.println(result);</span><br><span class="line">		System.out.println(<span class="string">"查看头元素："</span> + dq.peekFirst()); <span class="comment">// peek不会删除元素</span></span><br><span class="line">		System.out.println(<span class="string">"获取尾元素："</span> + dq.pollLast()); <span class="comment">// poll会删除元素</span></span><br><span class="line">		Object[] objs = dq.toArray();</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; objs.length; i++) &#123;</span><br><span class="line">			System.out.println(objs[i]);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">查看头元素：e</span><br><span class="line">获取尾元素：j</span><br><span class="line">e</span><br><span class="line">d</span><br><span class="line">c</span><br><span class="line">b</span><br><span class="line">a</span><br><span class="line">f</span><br><span class="line">g</span><br><span class="line">h</span><br><span class="line">i</span><br></pre></td></tr></table></figure>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/java并发编程/">java并发编程</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ConcurrentHashMap/">ConcurrentHashMap</a><a href="/tags/ArrayBlockingQueue/">ArrayBlockingQueue</a><a href="/tags/ConcurrentLinkedQueue/">ConcurrentLinkedQueue</a><a href="/tags/LinkedBlockingDeque/">LinkedBlockingDeque</a><a href="/tags/LinkedBlockingQueue/">LinkedBlockingQueue</a><a href="/tags/SynchronousQueue/">SynchronousQueue</a><a href="/tags/PriorityBlockingQueue/">PriorityBlockingQueue</a><a href="/tags/DelayQueue/">DelayQueue</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://lin38.github.io/2018/07/28/java并发编程/java并发编程-3-同步类容器&并发类容器/" data-title="java并发编程-3-同步类容器&amp;并发类容器 | John Lin的博客" data-tsina="2756295365" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/29/java并发编程/java并发编程-4-多线程的设计模式/" title="java并发编程-4-多线程的设计模式">
+  <strong>上一篇：</strong><br/>
+  <span>
+  java并发编程-4-多线程的设计模式</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/28/java并发编程/java并发编程-2-线程之间的通信/"  title="java并发编程-2-线程之间的通信">
+ <strong>下一篇：</strong><br/> 
+ <span>java并发编程-2-线程之间的通信
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、同步类容器"><span class="toc-text">1、同步类容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、并发类容器"><span class="toc-text">2、并发类容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、ConcurrentMap"><span class="toc-text">3、ConcurrentMap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4、Copy-On-Write容器"><span class="toc-text">4、Copy-On-Write容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5、并发Queue"><span class="toc-text">5、并发Queue</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6、ConcurrentLinkedQueue"><span class="toc-text">6、ConcurrentLinkedQueue</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7、BlockingQueue接口"><span class="toc-text">7、BlockingQueue接口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-1-ArrayBlockingQueue"><span class="toc-text">7.1 ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-2-LinkedBlockingQueue"><span class="toc-text">7.2 LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-3-PriorityBlockingQueue"><span class="toc-text">7.3 PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-4-DelayQueue"><span class="toc-text">7.4 DelayQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-5、SynchronousQueue"><span class="toc-text">7.5、SynchronousQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-6-LinkedBlockingDeque"><span class="toc-text">7.6 LinkedBlockingDeque</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Hexo搭建个人博客/" title="Hexo搭建个人博客">Hexo搭建个人博客<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java并发编程/" title="java并发编程">java并发编程<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/java网络编程/" title="java网络编程">java网络编程<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/序列化/" title="序列化">序列化<sup>4</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/ServerSocketChannel/" title="ServerSocketChannel">ServerSocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SocketChannel/" title="SocketChannel">SocketChannel<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Selector/" title="Selector">Selector<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/transient/" title="transient">transient<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Serializable/" title="Serializable">Serializable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Externalizable/" title="Externalizable">Externalizable<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Callable/" title="Callable">Callable<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentHashMap/" title="ConcurrentHashMap">ConcurrentHashMap<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ArrayBlockingQueue/" title="ArrayBlockingQueue">ArrayBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ConcurrentLinkedQueue/" title="ConcurrentLinkedQueue">ConcurrentLinkedQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingDeque/" title="LinkedBlockingDeque">LinkedBlockingDeque<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LinkedBlockingQueue/" title="LinkedBlockingQueue">LinkedBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SynchronousQueue/" title="SynchronousQueue">SynchronousQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/PriorityBlockingQueue/" title="PriorityBlockingQueue">PriorityBlockingQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DelayQueue/" title="DelayQueue">DelayQueue<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/wait/" title="wait">wait<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/notify/" title="notify">notify<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ThreadLocal/" title="ThreadLocal">ThreadLocal<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程池/" title="线程池">线程池<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 程序员的进步史 <br/>
+			To be a better man!</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2756295365" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/lin38" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/133002175" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/johnlin-56-26" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:1135191951@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="John Lin">John Lin</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
